@@ -2,11 +2,13 @@
 #define ITEM_H
 
 #include <string>
+#include <iostream>
 using namespace std;
 
-enum class Category {
+enum class Category
+{
     TEXTBOOK,
-    ELECTRONICS, 
+    ELECTRONICS,
     CLOTHING,
     LAB_EQUIPMENT,
     STATIONARY,
@@ -14,22 +16,26 @@ enum class Category {
     OTHER
 };
 
-class Item {
+class Item
+{
 private:
-    string itemID;          // Format: ITM001, ITM002
+    string itemID; // Format: ITM001, ITM002
     string name;
     Category category;
     string description;
     bool isAvailable;
-    string ownerID;         // Format: STU001
-    string dateListed;      // Format: 2024-03-15
-    
+    string ownerID;    // Format: STU001
+    string dateListed; // Format: 2024-03-15
+
+    // === FRIEND CLASS === (FileManager can access private members of Item)
+    friend class FileManager;
+
 public:
     // Constructor
     Item(string id = "", string name = "", Category cat = Category::OTHER,
-         string desc = "", bool available = true, 
-         string owner = "");
-    
+         string desc = "", bool available = true,
+         string owner = "", string date = "");
+
     // Getters
     string getID() const { return itemID; }
     string getName() const { return name; }
@@ -38,24 +44,28 @@ public:
     bool getAvailable() const { return isAvailable; }
     string getOwnerID() const { return ownerID; }
     string getDateListed() const { return dateListed; }
-    
+
     // Setters
     void updateStatus(bool available);
-    
+
     // Utility
     string getCategoryString() const;
     string getDetails() const;
-    bool matchesSearch(const string& keyword) const;
-    
+    bool matchesSearch(const string &keyword) const;
+
     // File operations
     string toFileString() const;
-    static Item fromString(const string& data);
-    
+    static Item fromString(const string &data);
+
     // Static converters
     static string categoryToString(Category cat);
-    static Category stringToCategory(const string& str);
+    static Category stringToCategory(const string &str);
 
-     static string getCurrentDate();
+    static string getCurrentDate();
+
+    // === FRIEND FUNCTION === (operator<< can access private members)
+    // === STREAMS === (overloaded stream insertion operator for Item)
+    friend ostream &operator<<(ostream &os, const Item &item);
 };
 
 #endif

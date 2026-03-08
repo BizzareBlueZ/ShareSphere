@@ -6,9 +6,6 @@ const vector<string> Validator::VALID_DEPTS = {
     "CSE", "EEE", "MPE", "CEE", "TVE", "BTM"
 };
 
-const vector<string> Validator::VALID_HALLS = {
-    "North","South", "Female"
-};
 
 bool Validator::isValidStudentID(const string& id) {
     if(id.length() != 9) return false;
@@ -85,12 +82,6 @@ bool Validator::isValidDepartment(const string& dept) {
     return false;
 }
 
-bool Validator::isValidHall(const string& hall) {
-    for(const string& validHall : VALID_HALLS) {
-        if(hall == validHall) return true;
-    }
-    return false;
-}
 
 bool Validator::isValidYear(int year) {
     return year >= 1 && year <= 4;
@@ -98,8 +89,4 @@ bool Validator::isValidYear(int year) {
 
 vector<string> Validator::getDepartmentList() {
     return VALID_DEPTS;
-}
-
-vector<string> Validator::getHallList() {
-    return VALID_HALLS;
 }

@@ -1,0 +1,20 @@
+1|Data Structures and Algorithms Textbook|TEXTBOOK|Cormen CLRS 4th Edition - covers sorting searching graphs|1|230041125|15-Jan-2026
+2|Casio fx-991EX Scientific Calculator|ELECTRONICS|Advanced scientific calculator with spreadsheet function|1|230041125|20-Feb-2026
+3|White Lab Coat Size M|CLOTHING|Clean lab coat for chemistry and biology labs|1|230041125|10-Jan-2026
+4|University Physics by Young and Freedman|TEXTBOOK|14th edition with solutions manual|1|210041101|05-Feb-2026
+5|Arduino Uno Starter Kit|ELECTRONICS|Complete kit with sensors LEDs wires and breadboard|1|210021101|12-Jan-2026
+6|Fluke Digital Multimeter|LAB_EQUIPMENT|Professional grade multimeter for circuit testing|1|220021101|18-Feb-2026
+7|A4 Notebook Bundle 5-Pack|STATIONARY|Ruled notebooks 200 pages each for note taking|1|230041201|01-Mar-2026
+8|North Face Winter Jacket Size L|CLOTHING|Warm jacket for cold weather suitable for campus|1|220041101|25-Jan-2026
+9|Chemistry Lab Equipment Set|LAB_EQUIPMENT|Beakers test tubes and measuring cylinders for lab|1|210031101|08-Feb-2026
+10|Anker USB-C Hub 7-in-1|ELECTRONICS|HDMI USB3 SD card reader for laptops|1|240041101|22-Feb-2026
+11|Discrete Mathematics by Kenneth Rosen|TEXTBOOK|8th edition great for CSE students|1|230041102|14-Jan-2026
+12|Solderless Breadboard Pack|ELECTRONICS|3 breadboards with jumper wire set for prototyping|1|220021101|03-Mar-2026
+13|Engineering Drawing Instrument Set|STATIONARY|Compass protractor scales and pencils|1|230011101|19-Feb-2026
+14|Python Crash Course by Eric Matthes|TEXTBOOK|3rd edition covers basics to projects|1|230041302|27-Jan-2026
+15|Weller Soldering Iron Kit|LAB_EQUIPMENT|60W adjustable temperature with solder wire|1|210021101|11-Jan-2026
+16|Insulated Lunch Box Set|FOOD|Stainless steel tiffin box 3 tier for campus meals|1|220031101|06-Mar-2026
+17|Adjustable Laptop Stand|ELECTRONICS|Aluminum ergonomic stand fits up to 17 inch laptops|1|210041101|15-Feb-2026
+18|Organic Chemistry by Morrison Boyd|TEXTBOOK|Classic textbook for organic chemistry course|1|220041101|28-Jan-2026
+19|Faber-Castell Colored Pencil Set|STATIONARY|36 color professional grade pencils for design|1|240041101|10-Mar-2026
+20|Oscilloscope Probe Set|LAB_EQUIPMENT|100MHz probes compatible with Rigol oscilloscopes|1|220021101|24-Feb-2026
