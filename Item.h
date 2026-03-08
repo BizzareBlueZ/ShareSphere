@@ -4,36 +4,58 @@
 #include <string>
 using namespace std;
 
+enum class Category {
+    TEXTBOOK,
+    ELECTRONICS, 
+    CLOTHING,
+    LAB_EQUIPMENT,
+    STATIONARY,
+    FOOD,
+    OTHER
+};
+
 class Item {
 private:
-    string itemID;
+    string itemID;          // Format: ITM001, ITM002
     string name;
-    string category;
+    Category category;
     string description;
-    double price;
     bool isAvailable;
-    string ownerID;
-
+    string ownerID;         // Format: STU001
+    string dateListed;      // Format: 2024-03-15
+    
 public:
-    Item(string id = "", string name = "", string category = "", 
-         string description = "", double price = 0.0, 
-         bool available = true, string owner = "");
+    // Constructor
+    Item(string id = "", string name = "", Category cat = Category::OTHER,
+         string desc = "", bool available = true, 
+         string owner = "");
     
-    void updateStatus(bool available);
-    string getDetails() const;
-    bool isFree() const;
-    bool matchesSearch(const string& keyword) const;
-    
+    // Getters
     string getID() const { return itemID; }
     string getName() const { return name; }
-    string getCategory() const { return category; }
+    Category getCategory() const { return category; }
     string getDescription() const { return description; }
-    string getOwner() const { return ownerID; }
     bool getAvailable() const { return isAvailable; }
-    double getPrice() const { return price; }
+    string getOwnerID() const { return ownerID; }
+    string getDateListed() const { return dateListed; }
     
+    // Setters
+    void updateStatus(bool available);
+    
+    // Utility
+    string getCategoryString() const;
+    string getDetails() const;
+    bool matchesSearch(const string& keyword) const;
+    
+    // File operations
     string toFileString() const;
     static Item fromString(const string& data);
+    
+    // Static converters
+    static string categoryToString(Category cat);
+    static Category stringToCategory(const string& str);
+
+     static string getCurrentDate();
 };
 
 #endif
