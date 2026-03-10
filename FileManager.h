@@ -11,12 +11,23 @@
 #include <string>
 #include <fstream>
 
+class FileManager;
+
+struct WaitlistEntry
+{
+    std::string itemID;
+    std::string studentID;
+    std::string dateAdded;
+};
+
 class FileManager
 {
 private:
     std::string usersFile;
     std::string itemsFile;
     std::string requestsFile;
+    std::string waitlistFile;
+    std::vector<WaitlistEntry> waitlist;
 
     // === TEMPLATE CLASS USAGE === (DataStore<T> manages typed collections)
     DataStore<User> users;
@@ -28,6 +39,8 @@ private:
     void createFileIfNotExists(const std::string &filename);
     void loadAllData();
     bool saveAllData();
+    void loadWaitlist();
+    void saveWaitlist();
 
 public:
     FileManager();
@@ -75,6 +88,14 @@ public:
     int countUsers() const;
     int countItems() const;
     int countRequests() const;
+
+    // Waitlist
+    bool addToWaitlist(const std::string &itemID, const std::string &studentID);
+    bool removeFromWaitlist(const std::string &itemID, const std::string &studentID);
+    std::vector<WaitlistEntry> getWaitlistForItem(const std::string &itemID) const;
+    bool isOnWaitlist(const std::string &itemID, const std::string &studentID) const;
+    std::string promoteFromWaitlist(const std::string &itemID);
+    int getWaitlistCount(const std::string &itemID) const;
 };
 
 #endif

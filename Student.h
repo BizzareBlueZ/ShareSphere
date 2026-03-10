@@ -12,7 +12,7 @@ private:
 public:
     Student(string id = "", string p = "", string name = "", string dept = "",
             string cont = "", string mail = "", int trans = 0,
-            int yr = 1, bool verified = false);
+            int yr = 1, bool verified = false, double trust = 50.0);
 
     int getYear() const { return year; }
     bool getVerified() const { return isVerified; }

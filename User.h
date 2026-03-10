@@ -15,10 +15,11 @@ protected:
     string contact;
     string email;
     int totalTransactions;
+    double trustScore;
 
 public:
     User(string id = "", string p = "", string name = "",
-         string dept = "", string cont = "", string mail = "", int trans = 0);
+         string dept = "", string cont = "", string mail = "", int trans = 0, double trust = 50.0);
 
     virtual ~User() {}
 
@@ -29,6 +30,9 @@ public:
     string getContact() const { return contact; }
     string getEmail() const { return email; }
     int getTotalTransactions() const { return totalTransactions; }
+    double getTrustScore() const { return trustScore; }
+    void adjustTrustScore(double delta);
+    string getTrustLevel() const;
 
     void setPIN(string newPIN) { pin = newPIN; }
     void updateContact(string newContact) { contact = newContact; }

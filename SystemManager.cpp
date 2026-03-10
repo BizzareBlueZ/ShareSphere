@@ -667,28 +667,63 @@ void SystemManager::handleGotBack(int requestId)
             User *lender = fileManager.findUserByStudentId(item->getOwnerID());
             User *borrower = fileManager.findUserByStudentId(req->getBorrowerID());
             if (lender)
+            {
                 lender->incrementTransactions();
+                lender->adjustTrustScore(5.0);
+            }
             if (borrower)
+            {
                 borrower->incrementTransactions();
+                borrower->adjustTrustScore(5.0);
+            }
 
             item->updateStatus(true);
             fileManager.deleteRequest(requestId);
             cout << "  [OK] Item marked as available. Connection closed.\n";
-            cout << "  [OK] Transactions updated for lender and borrower.\n";
+            cout << "  [OK] Transactions and trust scores updated.\n";
+
+            // Check waitlist and auto-promote next user
+            string nextStudentID = fileManager.promoteFromWaitlist(item->getID());
+            if (!nextStudentID.empty())
+            {
+                int newReqId = fileManager.getNextRequestId();
+                time_t wnow = time(0);
+                tm *wltm = localtime(&wnow);
+                stringstream wl_date;
+                wl_date << (1900 + wltm->tm_year) << "-"
+                        << setw(2) << setfill('0') << (1 + wltm->tm_mon) << "-"
+                        << setw(2) << setfill('0') << wltm->tm_mday;
+
+                Request autoReq(to_string(newReqId), nextStudentID, item->getID(),
+                                "1 week", RequestStatus::PENDING, wl_date.str(),
+                                "Auto-created from waitlist");
+                fileManager.addRequest(autoReq);
+
+                User *waitUser = fileManager.findUserByStudentId(nextStudentID);
+                cout << "  [!] Waitlisted user "
+                     << (waitUser ? waitUser->getFullName() : nextStudentID)
+                     << " auto-notified with a pending request!\n";
+            }
         }
         else if (choice == 2)
         {
             User *lender = fileManager.findUserByStudentId(item->getOwnerID());
             User *borrower = fileManager.findUserByStudentId(req->getBorrowerID());
             if (lender)
+            {
                 lender->incrementTransactions();
+                lender->adjustTrustScore(5.0);
+            }
             if (borrower)
+            {
                 borrower->incrementTransactions();
+                borrower->adjustTrustScore(5.0);
+            }
 
             fileManager.removeItem(stoi(item->getID()));
             fileManager.deleteRequest(requestId);
             cout << "  [OK] Item removed from system. Connection closed.\n";
-            cout << "  [OK] Transactions updated for lender and borrower.\n";
+            cout << "  [OK] Transactions and trust scores updated.\n";
         }
         else
         {
@@ -727,6 +762,46 @@ void SystemManager::handleBorrowAction()
     if (results.empty())
     {
         cout << "\n  [!] No available items found matching '" << query << "'.\n";
+
+        // Offer waitlist for unavailable items
+        vector<Item *> unavailable;
+        for (Item *item : fileManager.getAllItems())
+        {
+            if (!item->getAvailable() && item->matchesSearch(query) &&
+                item->getOwnerID() != currentUser->getID())
+            {
+                unavailable.push_back(item);
+            }
+        }
+        if (!unavailable.empty())
+        {
+            cout << "\n  " << unavailable.size() << " unavailable item(s) match your search.\n";
+            cout << "  Would you like to join a waitlist? (y/n): ";
+            string wChoice;
+            getline(cin, wChoice);
+            if (wChoice == "y" || wChoice == "Y")
+            {
+                for (size_t i = 0; i < unavailable.size(); i++)
+                {
+                    int wCount = fileManager.getWaitlistCount(unavailable[i]->getID());
+                    cout << "  " << (i + 1) << ". [" << unavailable[i]->getCategoryString() << "] "
+                         << unavailable[i]->getName() << " (" << wCount << " waiting)\n";
+                }
+                cout << "  Enter item number (0 to cancel): ";
+                int wPick = getMenuChoice(0, static_cast<int>(unavailable.size()));
+                if (wPick > 0)
+                {
+                    if (fileManager.addToWaitlist(unavailable[wPick - 1]->getID(), currentUser->getID()))
+                    {
+                        cout << "  [OK] Added to waitlist! You'll get a request when available.\n";
+                    }
+                    else
+                    {
+                        cout << "  [!] You're already on the waitlist for this item.\n";
+                    }
+                }
+            }
+        }
         return;
     }
 
@@ -902,6 +977,8 @@ void SystemManager::displayUserProfile()
     }
 
     cout << "  Total Transactions: " << currentUser->getTotalTransactions() << "\n";
+    cout << "  Trust Score: " << fixed << setprecision(1) << currentUser->getTrustScore()
+         << " (" << currentUser->getTrustLevel() << ")\n";
     printBoxBorder('=');
 
     cout << "\n  Press Enter to return to dashboard...";

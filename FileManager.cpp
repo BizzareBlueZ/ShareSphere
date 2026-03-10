@@ -7,6 +7,8 @@
 #include <cctype>
 #include <vector>
 #include <string>
+#include <ctime>
+#include <iomanip>
 
 using namespace std;
 
@@ -17,22 +19,29 @@ FileManager::FileManager() : currentUser(nullptr)
     usersFile = "users.txt";
     itemsFile = "items.txt";
     requestsFile = "requests.txt";
+    waitlistFile = "waitlist.txt";
 
     createFileIfNotExists(usersFile);
     createFileIfNotExists(itemsFile);
     createFileIfNotExists(requestsFile);
+    createFileIfNotExists(waitlistFile);
 
     loadAllData();
+    loadWaitlist();
 }
 
 FileManager::FileManager(string usrs, string itms, string reqs)
     : usersFile(usrs), itemsFile(itms), requestsFile(reqs), currentUser(nullptr)
 {
+    waitlistFile = "waitlist.txt";
+
     createFileIfNotExists(usersFile);
     createFileIfNotExists(itemsFile);
     createFileIfNotExists(requestsFile);
+    createFileIfNotExists(waitlistFile);
 
     loadAllData();
+    loadWaitlist();
 }
 
 FileManager::~FileManager()
@@ -490,4 +499,120 @@ bool FileManager::loadAllDataFromFiles()
 bool FileManager::saveAllDataToFiles()
 {
     return saveAllData();
+}
+
+// ==================== WAITLIST MANAGEMENT ====================
+
+void FileManager::loadWaitlist()
+{
+    waitlist.clear();
+    ifstream file(waitlistFile);
+    if (!file.is_open())
+        return;
+    string line;
+    while (getline(file, line))
+    {
+        if (!line.empty())
+        {
+            stringstream ss(line);
+            WaitlistEntry entry;
+            getline(ss, entry.itemID, '|');
+            getline(ss, entry.studentID, '|');
+            getline(ss, entry.dateAdded, '|');
+            if (!entry.itemID.empty() && !entry.studentID.empty())
+                waitlist.push_back(entry);
+        }
+    }
+    file.close();
+}
+
+void FileManager::saveWaitlist()
+{
+    ofstream file(waitlistFile);
+    if (!file.is_open())
+        return;
+    for (const auto &entry : waitlist)
+    {
+        file << entry.itemID << "|" << entry.studentID << "|" << entry.dateAdded << endl;
+    }
+    file.close();
+}
+
+bool FileManager::addToWaitlist(const string &itemID, const string &studentID)
+{
+    if (isOnWaitlist(itemID, studentID))
+        return false;
+
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+    stringstream date_ss;
+    date_ss << (1900 + ltm->tm_year) << "-"
+            << setw(2) << setfill('0') << (1 + ltm->tm_mon) << "-"
+            << setw(2) << setfill('0') << ltm->tm_mday;
+
+    WaitlistEntry entry{itemID, studentID, date_ss.str()};
+    waitlist.push_back(entry);
+    saveWaitlist();
+    return true;
+}
+
+bool FileManager::removeFromWaitlist(const string &itemID, const string &studentID)
+{
+    for (auto it = waitlist.begin(); it != waitlist.end(); ++it)
+    {
+        if (it->itemID == itemID && it->studentID == studentID)
+        {
+            waitlist.erase(it);
+            saveWaitlist();
+            return true;
+        }
+    }
+    return false;
+}
+
+vector<WaitlistEntry> FileManager::getWaitlistForItem(const string &itemID) const
+{
+    vector<WaitlistEntry> result;
+    for (const auto &entry : waitlist)
+    {
+        if (entry.itemID == itemID)
+            result.push_back(entry);
+    }
+    return result;
+}
+
+bool FileManager::isOnWaitlist(const string &itemID, const string &studentID) const
+{
+    for (const auto &entry : waitlist)
+    {
+        if (entry.itemID == itemID && entry.studentID == studentID)
+            return true;
+    }
+    return false;
+}
+
+string FileManager::promoteFromWaitlist(const string &itemID)
+{
+    for (auto it = waitlist.begin(); it != waitlist.end(); ++it)
+    {
+        if (it->itemID == itemID)
+        {
+            string studentID = it->studentID;
+            waitlist.erase(it);
+            saveWaitlist();
+            return studentID;
+        }
+    }
+    return "";
+}
+
+int FileManager::getWaitlistCount(const string &itemID) const
+{
+    int count = 0;
+    for (const auto &entry : waitlist)
+    {
+        if (entry.itemID == itemID)
+            count++;
+    }
+    return count;
 }
