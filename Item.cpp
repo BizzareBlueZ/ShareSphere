@@ -16,6 +16,14 @@ void Item::updateStatus(bool available)
     isAvailable = available;
 }
 
+void Item::setName(const std::string& newName) {
+    name = newName;
+}
+
+void Item::setDescription(const std::string& newDesc) {
+    description = newDesc;
+}
+
 string Item::getCategoryString() const
 {
     return categoryToString(category);
