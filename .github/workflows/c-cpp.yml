@@ -12,8 +12,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Install Qt6
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: 6.6.0
+
       - name: Configure CMake
-        run: cmake -S . -B build
+        run: cmake -S . -B build -DCMAKE_PREFIX_PATH="$Qt6_DIR"
 
       - name: Build
         run: cmake --build build
