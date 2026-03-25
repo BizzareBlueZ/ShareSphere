@@ -16,6 +16,9 @@
 #include <sstream>
 #include <algorithm>
 
+
+//cli part not used for gui ...basically assimilation working part
+
 using namespace std;
 
 namespace
@@ -425,12 +428,13 @@ void SystemManager::showDashboardWindow()
             printBoxLine("  2. LEND    - Add New Item to Share");
             printBoxLine("  3. REFRESH - Reload Dashboard");
             printBoxLine("  4. PROFILE - View My Profile");
-            printBoxLine("  5. LOGOUT  - Return to Login");
-            printBoxLine("  6. EXIT    - Close Program");
+            printBoxLine("  5. MANAGE  - Manage My Items");
+            printBoxLine("  6. LOGOUT  - Return to Login");
+            printBoxLine("  7. EXIT    - Close Program");
             printBoxBorder('-');
-            cout << "  Enter choice (1-6): ";
+            cout << "  Enter choice (1-7): ";
 
-            int choice = getMenuChoice(1, 6);
+            int choice = getMenuChoice(1, 7);
 
             switch (choice)
             {
@@ -447,13 +451,113 @@ void SystemManager::showDashboardWindow()
                 displayUserProfile();
                 break;
             case 5:
+                displayMyItemsPanel();
+                break;
+            case 6:
                 fileManager.logout();
                 cout << "\n  [OK] Logged out successfully.\n";
                 return;
-            case 6:
+            case 7:
                 cout << "\n  Exiting ShareSphere...\n";
                 fileManager.saveAllDataToFiles();
                 exit(0);
+            }
+            // ==================== PANEL: MANAGE MY ITEMS ====================
+            void SystemManager::displayMyItemsPanel()
+            {
+                cout << "\n  --- MY ITEMS ---\n";
+                vector<Item *> myItems;
+                for (Item *item : fileManager.getAllItems())
+                {
+                    if (item->getOwnerID() == currentUser->getID())
+                    {
+                        myItems.push_back(item);
+                    }
+                }
+                if (myItems.empty())
+                {
+                    cout << "  (You have not added any items.)\n";
+                    cout << "  Press Enter to return...";
+                    cin.ignore();
+                    return;
+                }
+                while (true)
+                {
+                    cout << "\n  Your Items:" << endl;
+                    for (size_t i = 0; i < myItems.size(); ++i)
+                    {
+                        cout << "  " << (i + 1) << ". " << myItems[i]->getName() << " | "
+                             << myItems[i]->getCategoryString() << " | "
+                             << myItems[i]->getDescription() << " | "
+                             << (myItems[i]->getAvailable() ? "Available" : "Borrowed") << endl;
+                    }
+                    cout << "\n  Select item to [E]dit, [D]elete, or [B]ack: ";
+                    string input;
+                    getline(cin, input);
+                    if (input == "B" || input == "b")
+                        break;
+                    if (input.empty())
+                        continue;
+                    int idx = -1;
+                    char action = 0;
+                    if (isdigit(input[0]))
+                    {
+                        idx = stoi(input) - 1;
+                        cout << "  [E]dit or [D]elete this item? ";
+                        getline(cin, input);
+                        if (!input.empty())
+                            action = toupper(input[0]);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                    if (idx < 0 || idx >= (int)myItems.size())
+                    {
+                        cout << "  [!] Invalid item number.\n";
+                        continue;
+                    }
+                    Item *item = myItems[idx];
+                    if (action == 'E')
+                    {
+                        cout << "  New name (leave blank to keep): ";
+                        string newName;
+                        getline(cin, newName);
+                        if (!newName.empty())
+                            item->setName(newName);
+                        cout << "  New description (leave blank to keep): ";
+                        string newDesc;
+                        getline(cin, newDesc);
+                        if (!newDesc.empty())
+                            item->setDescription(newDesc);
+                        fileManager.saveAllDataToFiles();
+                        cout << "  [OK] Item updated.\n";
+                    }
+                    else if (action == 'D')
+                    {
+                        cout << "  Are you sure you want to delete this item? (y/n): ";
+                        string confirm;
+                        getline(cin, confirm);
+                        if (confirm == "y" || confirm == "Y")
+                        {
+                            fileManager.removeItem(stoi(item->getID()));
+                            fileManager.saveAllDataToFiles();
+                            myItems.erase(myItems.begin() + idx);
+                            cout << "  [OK] Item deleted.\n";
+                            if (myItems.empty())
+                            {
+                                cout << "  (No more items.)\n";
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        cout << "  [!] Invalid action.\n";
+                    }
+                }
+                cout << "  Press Enter to return...";
+                cin.ignore();
             }
         }
         catch (const ShareSphereException &e)
@@ -669,18 +773,17 @@ void SystemManager::handleGotBack(int requestId)
             if (lender)
             {
                 lender->incrementTransactions();
-                lender->adjustTrustScore(5.0);
+                // trust score removed
             }
             if (borrower)
             {
                 borrower->incrementTransactions();
-                borrower->adjustTrustScore(5.0);
             }
 
             item->updateStatus(true);
             fileManager.deleteRequest(requestId);
             cout << "  [OK] Item marked as available. Connection closed.\n";
-            cout << "  [OK] Transactions and trust scores updated.\n";
+            cout << "  [OK] Transactions updated.\n";
 
             // Check waitlist and auto-promote next user
             string nextStudentID = fileManager.promoteFromWaitlist(item->getID());
@@ -712,18 +815,17 @@ void SystemManager::handleGotBack(int requestId)
             if (lender)
             {
                 lender->incrementTransactions();
-                lender->adjustTrustScore(5.0);
+                // trust score removed
             }
             if (borrower)
             {
                 borrower->incrementTransactions();
-                borrower->adjustTrustScore(5.0);
             }
 
             fileManager.removeItem(stoi(item->getID()));
             fileManager.deleteRequest(requestId);
             cout << "  [OK] Item removed from system. Connection closed.\n";
-            cout << "  [OK] Transactions and trust scores updated.\n";
+            cout << "  [OK] Transactions updated.\n";
         }
         else
         {
@@ -977,8 +1079,7 @@ void SystemManager::displayUserProfile()
     }
 
     cout << "  Total Transactions: " << currentUser->getTotalTransactions() << "\n";
-    cout << "  Trust Score: " << fixed << setprecision(1) << currentUser->getTrustScore()
-         << " (" << currentUser->getTrustLevel() << ")\n";
+    // trust score display removed
     printBoxBorder('=');
 
     cout << "\n  Press Enter to return to dashboard...";

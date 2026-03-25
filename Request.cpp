@@ -18,7 +18,7 @@ Request::Request(string reqID, string borrower, string item,
 {
 }
 
-// Convert status enum to string
+// Convert status enum to string 
 string Request::getStatusString() const
 {
     switch (status)
@@ -283,7 +283,6 @@ string Request::generateRequestID(int count)
     return ss.str();
 }
 
-// === FRIEND FUNCTION + STREAMS: operator<< overload for Request ===
 ostream &operator<<(ostream &os, const Request &req)
 {
     os << "Request #" << req.requestID << " [" << req.getStatusString() << "]\n"

@@ -254,8 +254,6 @@ private:
     QTableWidget *connectionsTable;
 
     // Profile tab
-    QProgressBar *trustBar;
-    QLabel *trustLabel;
     QLabel *profileInfoLabel;
 
     void setupBrowseTab(QWidget *tab);
@@ -332,7 +330,6 @@ LoginPage::LoginPage(FileManager *fm, QWidget *parent)
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setAlignment(Qt::AlignCenter);
 
-    // --- Frosted glass card ---
     cardWidget = new QWidget();
     cardWidget->setObjectName("loginCard");
     cardWidget->setFixedWidth(460);
@@ -353,7 +350,6 @@ LoginPage::LoginPage(FileManager *fm, QWidget *parent)
     cardLayout->setContentsMargins(40, 35, 40, 35);
     cardLayout->setSpacing(6);
 
-    // --- Title with bubble font ---
     titleLabel = new QLabel("ShareSphere");
     QFont titleFont;
     QStringList funFonts = {"Ink Free", "Fredoka", "Fredoka One", "Baloo 2",
@@ -369,15 +365,13 @@ LoginPage::LoginPage(FileManager *fm, QWidget *parent)
         }
     }
     if (!fontSet)
-    {
         titleFont = QFont("Segoe UI", 44, QFont::Black);
-    }
+
     titleFont.setLetterSpacing(QFont::AbsoluteSpacing, 2);
     titleLabel->setFont(titleFont);
     titleLabel->setAlignment(Qt::AlignCenter);
     titleLabel->setStyleSheet("color: #0e4d45;");
 
-    // --- Form fields ---
     idLabel = new QLabel("Student ID");
     idLabel->setStyleSheet("color: #ccc; font-size: 13px; font-weight: bold; margin-top: 4px;");
     studentIdEdit = new QLineEdit();
@@ -401,7 +395,6 @@ LoginPage::LoginPage(FileManager *fm, QWidget *parent)
         "  border-radius: 10px; padding: 10px 16px; color: #e0e0e0; font-size: 14px; }"
         "QLineEdit:focus { border-color: #1a8a70; background: rgba(255,255,255,0.12); }");
 
-    // --- Buttons ---
     QPushButton *loginBtn = new QPushButton("  Login  ");
     loginBtn->setMinimumHeight(46);
     loginBtn->setCursor(Qt::PointingHandCursor);
@@ -428,7 +421,6 @@ LoginPage::LoginPage(FileManager *fm, QWidget *parent)
     statusLabel->setStyleSheet("color: #ff6b6b; font-weight: bold; font-size: 13px;");
     statusLabel->setAlignment(Qt::AlignCenter);
 
-    // --- Assemble card layout ---
     cardLayout->addWidget(titleLabel);
     cardLayout->addSpacing(22);
     cardLayout->addWidget(idLabel);
@@ -457,7 +449,7 @@ LoginPage::LoginPage(FileManager *fm, QWidget *parent)
 void LoginPage::setDarkMode(bool dark)
 {
     darkMode = dark;
-    bgCachedWidth = 0; // force re-generate
+    bgCachedWidth = 0;
     if (dark)
     {
         cardWidget->setStyleSheet(
@@ -507,7 +499,6 @@ void LoginPage::generateBackground(int w, int h, bool dark)
     QPainter p(&bgCached);
     p.setRenderHint(QPainter::Antialiasing);
 
-    // Off-white background
     if (dark)
     {
         QLinearGradient base(0, 0, w, h);
@@ -521,7 +512,6 @@ void LoginPage::generateBackground(int w, int h, bool dark)
         p.fillRect(0, 0, w, h, QColor(245, 242, 238));
     }
 
-    // Checked grid pattern - deep red
     p.setCompositionMode(QPainter::CompositionMode_SourceOver);
     QPen gridPen(dark ? QColor(100, 160, 200, 18) : QColor(140, 28, 28, 55));
     gridPen.setWidth(1);
@@ -690,7 +680,6 @@ void LoginPage::onCreateAccount()
 DashboardPage::DashboardPage(FileManager *fm, QWidget *parent)
     : QWidget(parent), fileManager(fm)
 {
-
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(15, 10, 15, 10);
 
@@ -746,7 +735,7 @@ DashboardPage::DashboardPage(FileManager *fm, QWidget *parent)
     connect(refreshBtn, &QPushButton::clicked, this, &DashboardPage::onRefresh);
 }
 
-// --- Tab Setup ---
+// =================== TAB SETUP ===================
 
 void DashboardPage::setupBrowseTab(QWidget *tab)
 {
@@ -815,22 +804,23 @@ void DashboardPage::setupRequestsTab(QWidget *tab)
     info->setObjectName("subtitleLabel");
 
     requestsTable = new QTableWidget();
-    requestsTable->setColumnCount(7);
+    // ── 6 columns: Request# | From | Item | Duration | Notes | Action ──
+    // (Trust Score column removed)
+    requestsTable->setColumnCount(6);
     requestsTable->setHorizontalHeaderLabels(
-        {"Request#", "From", "Item", "Duration", "Notes", "Trust", "Action"});
+        {"Request#", "From", "Item", "Duration", "Notes", "Action"});
     requestsTable->horizontalHeader()->setStretchLastSection(false);
     requestsTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     requestsTable->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
-    requestsTable->setColumnWidth(0, 70);
-    requestsTable->setColumnWidth(1, 120);
-    requestsTable->setColumnWidth(2, 120);
+    requestsTable->setColumnWidth(0, 75);
+    requestsTable->setColumnWidth(1, 130);
+    requestsTable->setColumnWidth(2, 130);
     requestsTable->setColumnWidth(3, 90);
-    requestsTable->setColumnWidth(5, 70);
-    requestsTable->setColumnWidth(6, 160);
+    requestsTable->setColumnWidth(5, 240);
     requestsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     requestsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     requestsTable->setAlternatingRowColors(true);
-    requestsTable->verticalHeader()->setDefaultSectionSize(40);
+    requestsTable->verticalHeader()->setDefaultSectionSize(48);
 
     layout->addWidget(info);
     layout->addWidget(requestsTable);
@@ -877,25 +867,11 @@ void DashboardPage::setupProfileTab(QWidget *tab)
     profileInfoLabel->setStyleSheet("font-size: 14px; line-height: 1.6;");
     infoLayout->addWidget(profileInfoLabel);
 
-    QGroupBox *trustGroup = new QGroupBox("Trust Score");
-    QVBoxLayout *trustLayout = new QVBoxLayout(trustGroup);
-    trustBar = new QProgressBar();
-    trustBar->setRange(0, 100);
-    trustBar->setTextVisible(true);
-    trustBar->setFormat("%v / 100");
-    trustBar->setMinimumHeight(30);
-    trustLabel = new QLabel("");
-    trustLabel->setStyleSheet("font-size: 16px; font-weight: bold;");
-    trustLayout->addWidget(trustBar);
-    trustLayout->addWidget(trustLabel);
-
     layout->addWidget(infoGroup);
-    layout->addSpacing(15);
-    layout->addWidget(trustGroup);
     layout->addStretch();
 }
 
-// --- Refresh Methods ---
+// =================== REFRESH ===================
 
 void DashboardPage::refreshAll()
 {
@@ -926,6 +902,7 @@ void DashboardPage::onSearch()
 }
 
 // =================== STYLED DIALOG HELPERS ===================
+
 void DashboardPage::showStyledMsg(const QString &title, const QString &text)
 {
     QDialog dlg(this);
@@ -933,7 +910,6 @@ void DashboardPage::showStyledMsg(const QString &title, const QString &text)
     dlg.setMinimumWidth(380);
     dlg.setMaximumWidth(500);
 
-    // Inverted: dark main → light popup, light main → dark popup
     QString bg, fg, btnBg, btnHover, borderCol;
     if (darkTheme)
     {
@@ -1145,6 +1121,7 @@ int DashboardPage::showStyledChoice(const QString &title, const QString &text,
 }
 
 // =================== REFRESH METHODS ===================
+
 void DashboardPage::refreshBrowse()
 {
     browseTable->setRowCount(0);
@@ -1177,7 +1154,9 @@ void DashboardPage::refreshBrowse()
 
         User *owner = fileManager->findUserByStudentId(item->getOwnerID());
         browseTable->setItem(row, 3,
-                             new QTableWidgetItem(owner ? QString::fromStdString(owner->getFullName()) : "Unknown"));
+                             new QTableWidgetItem(owner
+                                                      ? QString::fromStdString(owner->getFullName())
+                                                      : "Unknown"));
 
         if (item->getAvailable())
         {
@@ -1216,8 +1195,7 @@ void DashboardPage::refreshBrowse()
 
                 try {
                     fileManager->addRequest(newReq);
-                    showStyledMsg("Success",
-                        "Request sent to item owner!");
+                    showStyledMsg("Success", "Request sent to item owner!");
                     refreshBrowse();
                 } catch (const exception& e) {
                     showStyledMsg("Error", e.what());
@@ -1266,6 +1244,9 @@ void DashboardPage::refreshBrowse()
 
 void DashboardPage::refreshMyItems()
 {
+    myItemsTable->clear();
+    myItemsTable->setColumnCount(6);
+    myItemsTable->setHorizontalHeaderLabels({"Name", "Category", "Description", "Status", "Listed", "Action"});
     myItemsTable->setRowCount(0);
     User *currentUser = fileManager->getCurrentUser();
     if (!currentUser)
@@ -1294,6 +1275,60 @@ void DashboardPage::refreshMyItems()
 
         myItemsTable->setItem(row, 4,
                               new QTableWidgetItem(QString::fromStdString(item->getDateListed())));
+
+        // Action buttons
+        QWidget *actionWidget = new QWidget();
+        QHBoxLayout *actionLayout = new QHBoxLayout(actionWidget);
+        actionLayout->setContentsMargins(0, 0, 0, 0);
+        actionLayout->setSpacing(8);
+
+        QPushButton *editBtn = new QPushButton("Edit");
+        editBtn->setObjectName("successBtn");
+        editBtn->setMinimumWidth(70);
+        QPushButton *deleteBtn = new QPushButton("Delete");
+        deleteBtn->setObjectName("dangerBtn");
+        deleteBtn->setMinimumWidth(70);
+
+        actionLayout->addWidget(editBtn);
+        actionLayout->addWidget(deleteBtn);
+
+        int itemId = 0;
+        try
+        {
+            itemId = stoi(item->getID());
+        }
+        catch (...)
+        {
+            continue;
+        }
+
+        // Edit button logic
+        connect(editBtn, &QPushButton::clicked, [this, itemId]()
+                {
+            Item* itm = fileManager->findItemById(itemId);
+            if (!itm) { showStyledMsg("Error", "Item not found."); return; }
+            bool ok;
+            QString newName = QInputDialog::getText(this, "Edit Item Name", "Name:", QLineEdit::Normal, QString::fromStdString(itm->getName()), &ok);
+            if (!ok) return;
+            QString newDesc = QInputDialog::getText(this, "Edit Description", "Description:", QLineEdit::Normal, QString::fromStdString(itm->getDescription()), &ok);
+            if (!ok) return;
+            itm->setName(newName.toStdString());
+            itm->setDescription(newDesc.toStdString());
+            fileManager->saveAllDataToFiles();
+            refreshMyItems();
+            showStyledMsg("Success", "Item updated."); });
+
+        // Delete button logic
+        connect(deleteBtn, &QPushButton::clicked, [this, itemId]()
+                {
+            if (!showStyledConfirm("Delete Item", "Are you sure you want to delete this item?")) return;
+            try { fileManager->removeItem(itemId); } catch (...) { showStyledMsg("Error", "Failed to delete item."); return; }
+            fileManager->saveAllDataToFiles();
+            refreshMyItems();
+            showStyledMsg("Deleted", "Item removed."); });
+
+        myItemsTable->setCellWidget(row, 5, actionWidget);
+        myItemsTable->setRowHeight(row, 40);
     }
 }
 
@@ -1314,6 +1349,19 @@ void DashboardPage::refreshRequests()
         return;
     }
 
+    // Rebuild headers (6 cols: Request# | From | Item | Duration | Notes | Action)
+    requestsTable->clear();
+    requestsTable->setColumnCount(6);
+    requestsTable->setHorizontalHeaderLabels(
+        {"Request#", "From", "Item", "Duration", "Notes", "Action"});
+    requestsTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+    requestsTable->horizontalHeader()->setSectionResizeMode(4, QHeaderView::Stretch);
+    requestsTable->setColumnWidth(0, 75);
+    requestsTable->setColumnWidth(1, 130);
+    requestsTable->setColumnWidth(2, 130);
+    requestsTable->setColumnWidth(3, 90);
+    requestsTable->setColumnWidth(5, 240);
+
     vector<Request *> pending = fileManager->getPendingRequestsForUser(userId);
 
     for (Request *req : pending)
@@ -1321,15 +1369,18 @@ void DashboardPage::refreshRequests()
         int row = requestsTable->rowCount();
         requestsTable->insertRow(row);
 
+        // Col 0 — Request ID
         requestsTable->setItem(row, 0,
                                new QTableWidgetItem(QString::fromStdString(req->getRequestID())));
 
+        // Col 1 — Borrower name
         User *borrower = fileManager->findUserByStudentId(req->getBorrowerID());
         requestsTable->setItem(row, 1,
                                new QTableWidgetItem(borrower
                                                         ? QString::fromStdString(borrower->getFullName())
                                                         : "Unknown"));
 
+        // Col 2 — Item name
         Item *item = nullptr;
         try
         {
@@ -1343,37 +1394,43 @@ void DashboardPage::refreshRequests()
                                                         ? QString::fromStdString(item->getName())
                                                         : "Unknown"));
 
+        // Col 3 — Duration
         requestsTable->setItem(row, 3,
                                new QTableWidgetItem(QString::fromStdString(req->getDuration())));
 
+        // Col 4 — Notes (truncated)
         QString notesText = QString::fromStdString(req->getNotes());
         if (notesText.length() > 30)
             notesText = notesText.left(27) + "...";
         requestsTable->setItem(row, 4, new QTableWidgetItem(notesText));
 
-        // Borrower trust score
-        QString trustText = borrower
-                                ? QString("%1 (%2)")
-                                      .arg(borrower->getTrustScore(), 0, 'f', 1)
-                                      .arg(QString::fromStdString(borrower->getTrustLevel()))
-                                : "?";
-        requestsTable->setItem(row, 5, new QTableWidgetItem(trustText));
-
-        // Action buttons
+        // Col 5 — Accept / Reject buttons (inline stylesheet so they render correctly)
         QWidget *actionWidget = new QWidget();
         QHBoxLayout *actionLayout = new QHBoxLayout(actionWidget);
-        actionLayout->setContentsMargins(2, 2, 2, 2);
-        actionLayout->setSpacing(4);
+        actionLayout->setContentsMargins(6, 6, 6, 6);
+        actionLayout->setSpacing(8);
 
-        QPushButton *approveBtn = new QPushButton("Approve");
-        approveBtn->setObjectName("successBtn");
-        approveBtn->setMaximumWidth(80);
+        QPushButton *acceptBtn = new QPushButton("Accept");
+        acceptBtn->setFixedSize(104, 34);
+        acceptBtn->setCursor(Qt::PointingHandCursor);
+        acceptBtn->setStyleSheet(
+            "QPushButton { background-color: #1a8a5a; color: white; border: none;"
+            "  border-radius: 6px; font-size: 13px; font-weight: bold; }"
+            "QPushButton:hover { background-color: #1e9460; }"
+            "QPushButton:pressed { background-color: #157a4e; }");
+
         QPushButton *rejectBtn = new QPushButton("Reject");
-        rejectBtn->setObjectName("dangerBtn");
-        rejectBtn->setMaximumWidth(80);
+        rejectBtn->setFixedSize(104, 34);
+        rejectBtn->setCursor(Qt::PointingHandCursor);
+        rejectBtn->setStyleSheet(
+            "QPushButton { background-color: #c0392b; color: white; border: none;"
+            "  border-radius: 6px; font-size: 13px; font-weight: bold; }"
+            "QPushButton:hover { background-color: #e74c3c; }"
+            "QPushButton:pressed { background-color: #a93226; }");
 
-        actionLayout->addWidget(approveBtn);
+        actionLayout->addWidget(acceptBtn);
         actionLayout->addWidget(rejectBtn);
+        actionLayout->addStretch();
 
         int reqId = 0;
         try
@@ -1385,43 +1442,42 @@ void DashboardPage::refreshRequests()
             continue;
         }
 
-        connect(approveBtn, &QPushButton::clicked, [this, reqId]()
+        connect(acceptBtn, &QPushButton::clicked, [this, reqId]()
                 {
             try {
                 if (fileManager->updateRequestStatus(reqId, "APPROVED")) {
-                    Request* r = fileManager->findRequestById(reqId);
+                    Request *r = fileManager->findRequestById(reqId);
                     if (r) {
-                        Item* itm = nullptr;
+                        Item *itm = nullptr;
                         try { itm = fileManager->findItemById(stoi(r->getItemID())); } catch (...) {}
                         if (itm) {
                             itm->updateStatus(false);
                             fileManager->saveAllDataToFiles();
                         }
                     }
-                showStyledMsg("Approved",
-                        "Request approved! Connection created.");
+                    showStyledMsg("Accepted", "Request accepted! Connection created.");
                     refreshRequests();
                     refreshConnections();
                     refreshMyItems();
                     refreshBrowse();
                 }
-            } catch (const exception& e) {
+            } catch (const exception &e) {
                 showStyledMsg("Error", e.what());
             } });
 
         connect(rejectBtn, &QPushButton::clicked, [this, reqId]()
                 {
-            if (showStyledConfirm("Reject",
-                    "Reject this request?")) {
+            if (showStyledConfirm("Reject", "Reject this request?")) {
                 try {
                     fileManager->deleteRequest(reqId);
                     refreshRequests();
-                } catch (const exception& e) {
+                } catch (const exception &e) {
                     showStyledMsg("Error", e.what());
                 }
             } });
 
-        requestsTable->setCellWidget(row, 6, actionWidget);
+        requestsTable->setCellWidget(row, 5, actionWidget);
+        requestsTable->setRowHeight(row, 48);
     }
 }
 
@@ -1507,14 +1563,13 @@ void DashboardPage::refreshConnections()
                 User* lndr = itm ? fileManager->findUserByStudentId(itm->getOwnerID()) : nullptr;
                 User* brwr = fileManager->findUserByStudentId(r->getBorrowerID());
 
-                if (lndr) { lndr->incrementTransactions(); lndr->adjustTrustScore(5.0); }
-                if (brwr) { brwr->incrementTransactions(); brwr->adjustTrustScore(5.0); }
+                if (lndr) lndr->incrementTransactions();
+                if (brwr) brwr->incrementTransactions();
 
                 if (choice == 0) {
                     if (itm) itm->updateStatus(true);
                     fileManager->deleteRequest(rId);
 
-                    // Check waitlist
                     if (itm) {
                         string nextStudent = fileManager->promoteFromWaitlist(itm->getID());
                         if (!nextStudent.empty()) {
@@ -1537,16 +1592,13 @@ void DashboardPage::refreshConnections()
                                         : QString::fromStdString(nextStudent)));
                         }
                     }
-
-                    showStyledMsg("Success",
-                        "Item returned and marked available.\nTrust scores updated!");
+                    showStyledMsg("Success", "Item returned and marked available.");
                 } else {
                     if (itm) {
                         try { fileManager->removeItem(stoi(itm->getID())); } catch (...) {}
                     }
                     fileManager->deleteRequest(rId);
-                    showStyledMsg("Success",
-                        "Item removed from system.\nTrust scores updated!");
+                    showStyledMsg("Success", "Item removed from system.");
                 }
 
                 fileManager->saveAllDataToFiles();
@@ -1579,32 +1631,12 @@ void DashboardPage::refreshProfile()
                     .arg(student->getVerified() ? "Yes (Email provided)" : "No");
     }
     info += QString("<b>Contact:</b> %1<br>").arg(QString::fromStdString(user->getContact()));
-    info += QString("<b>Email:</b> %1<br>").arg(QString::fromStdString(user->getEmail().empty() ? "N/A" : user->getEmail()));
+    info += QString("<b>Email:</b> %1<br>")
+                .arg(QString::fromStdString(user->getEmail().empty() ? "N/A" : user->getEmail()));
     info += QString("<b>Total Transactions:</b> %1").arg(user->getTotalTransactions());
 
     profileInfoLabel->setTextFormat(Qt::RichText);
     profileInfoLabel->setText(info);
-
-    int trust = static_cast<int>(user->getTrustScore());
-    trustBar->setValue(trust);
-
-    QString level = QString::fromStdString(user->getTrustLevel());
-    QString color;
-    if (trust >= 80)
-        color = "#27ae60";
-    else if (trust >= 60)
-        color = "#3498db";
-    else if (trust >= 40)
-        color = "#f39c12";
-    else
-        color = "#e74c3c";
-
-    trustLabel->setText(QString("%1 - %2").arg(trust).arg(level));
-    trustLabel->setStyleSheet(
-        QString("font-size: 16px; font-weight: bold; color: %1;").arg(color));
-
-    trustBar->setStyleSheet(
-        QString("QProgressBar::chunk { background-color: %1; border-radius: 4px; }").arg(color));
 }
 
 void DashboardPage::checkWaitlistNotifications()
@@ -1640,7 +1672,7 @@ void DashboardPage::checkWaitlistNotifications()
     }
 }
 
-// --- Add Item Dialog ---
+// =================== ADD ITEM DIALOG ===================
 
 void DashboardPage::onAddItem()
 {

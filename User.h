@@ -15,11 +15,10 @@ protected:
     string contact;
     string email;
     int totalTransactions;
-    double trustScore;
 
 public:
     User(string id = "", string p = "", string name = "",
-         string dept = "", string cont = "", string mail = "", int trans = 0, double trust = 50.0);
+         string dept = "", string cont = "", string mail = "", int trans = 0);
 
     virtual ~User() {}
 
@@ -30,9 +29,6 @@ public:
     string getContact() const { return contact; }
     string getEmail() const { return email; }
     int getTotalTransactions() const { return totalTransactions; }
-    double getTrustScore() const { return trustScore; }
-    void adjustTrustScore(double delta);
-    string getTrustLevel() const;
 
     void setPIN(string newPIN) { pin = newPIN; }
     void updateContact(string newContact) { contact = newContact; }
@@ -41,18 +37,16 @@ public:
 
     bool checkPIN(string inputPIN) const { return pin == inputPIN; }
 
-    // === PURE VIRTUAL FUNCTION === (makes User an ABSTRACT CLASS - cannot be instantiated)
+    //a pure virtual...mainly will be used as a role giver for every user type (student, admin, etc.) and for dynamic casting
     virtual string getUserType() const = 0;
 
-    // === VIRTUAL FUNCTIONS === (can be overridden by derived classes like Student)
+    // VIRTUAL FUNCTIONS ...can be overridden by derived classes like Student)
     virtual string getDetails() const;
     virtual void display(ostream &os) const;
 
     virtual string serialize() const;
     static User *deserialize(const string &data);
 
-    // === FRIEND FUNCTION === (operator<< can access private/protected members)
-    // === STREAMS === (overloaded stream insertion operator)
     friend ostream &operator<<(ostream &os, const User &user);
 };
 

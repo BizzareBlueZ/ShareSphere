@@ -63,8 +63,7 @@ public:
 
     static string getCurrentDate();
 
-    // === FRIEND FUNCTION === (operator<< can access private members)
-    // === STREAMS === (overloaded stream insertion operator for Item)
+    //friend functions
     friend ostream &operator<<(ostream &os, const Item &item);
 };
 

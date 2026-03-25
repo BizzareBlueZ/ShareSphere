@@ -5,7 +5,7 @@
 using namespace std;
 
 User::User(string id, string p, string name, string dept,
-           string cont, string mail, int trans, double trust)
+           string cont, string mail, int trans)
 {
     userID = id;
     pin = p;
@@ -14,7 +14,6 @@ User::User(string id, string p, string name, string dept,
     contact = cont;
     email = mail;
     totalTransactions = trans;
-    trustScore = trust;
 }
 
 string User::getDetails() const
@@ -26,29 +25,8 @@ string User::getDetails() const
        << "Department: " << department << "\n"
        << "Contact: " << contact << "\n"
        << "Email: " << email << "\n"
-       << "Transactions: " << totalTransactions << "\n"
-       << "Trust Score: " << fixed << setprecision(1) << trustScore << " (" << getTrustLevel() << ")";
+       << "Transactions: " << totalTransactions;
     return ss.str();
-}
-
-void User::adjustTrustScore(double delta)
-{
-    trustScore += delta;
-    if (trustScore > 100.0)
-        trustScore = 100.0;
-    if (trustScore < 0.0)
-        trustScore = 0.0;
-}
-
-string User::getTrustLevel() const
-{
-    if (trustScore >= 80.0)
-        return "Excellent";
-    if (trustScore >= 60.0)
-        return "Good";
-    if (trustScore >= 40.0)
-        return "Fair";
-    return "Poor";
 }
 
 string User::serialize() const

@@ -5,6 +5,7 @@
 #include <string>
 #include <algorithm>
 
+using namespace std;
 // ============================================================
 // === TEMPLATE CLASS: Generic data store for pointer types  ===
 // ============================================================
@@ -14,12 +15,11 @@ template <typename T>
 class DataStore
 {
 private:
-    std::vector<T *> data;
+    vector<T *> data;
 
 public:
     DataStore() = default;
 
-    // Destructor frees all stored pointers
     ~DataStore()
     {
         clear();
@@ -48,7 +48,7 @@ public:
     }
 
     // Remove element by ID, returns true if found and removed
-    bool removeById(const std::string &id)
+    bool removeById(const string &id)
     {
         for (auto it = data.begin(); it != data.end(); ++it)
         {
@@ -63,7 +63,7 @@ public:
     }
 
     // Get all elements as a vector
-    std::vector<T *> getAll() const { return data; }
+    vector<T *> getAll() const { return data; }
 
     // Get count of elements
     int count() const { return static_cast<int>(data.size()); }
@@ -87,11 +87,11 @@ public:
         {
             try
             {
-                int id = std::stoi(item->getID());
+                int id = stoi(item->getID());
                 if (id > maxId)
                     maxId = id;
             }
-            catch (...)
+            catch (...)//generic catch handling...catches all kinda exceptions, including invalid argument and out of range from stoi, as well as any other unforeseen issues with getID()
             {
                 // Skip non-numeric IDs
             }
@@ -100,10 +100,10 @@ public:
     }
 
     // === Iterator support for range-based for loops ===
-    typename std::vector<T *>::iterator begin() { return data.begin(); }
-    typename std::vector<T *>::iterator end() { return data.end(); }
-    typename std::vector<T *>::const_iterator begin() const { return data.begin(); }
-    typename std::vector<T *>::const_iterator end() const { return data.end(); }
+    typename vector<T *>::iterator begin() { return data.begin(); }
+    typename vector<T *>::iterator end() { return data.end(); }
+    typename vector<T *>::const_iterator begin() const { return data.begin(); }
+    typename vector<T *>::const_iterator end() const { return data.end(); }
 };
 
 #endif

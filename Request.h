@@ -2,13 +2,15 @@
 #define REQUEST_H
 
 #include <string>
-#include <vector> // ADD THIS
+#include <vector> 
 #include <iostream>
 #include "User.h"
 #include "Item.h"
 class FileManager;
 
-enum class RequestStatus
+using namespace std;
+
+enum class RequestStatus// Represents the current status of a borrow request
 {
     PENDING,
     APPROVED,
@@ -20,53 +22,53 @@ enum class RequestStatus
 class Request
 {
 private:
-    std::string requestID;
-    std::string borrowerID;
-    std::string itemID;
-    std::string duration;
+    string requestID;
+    string borrowerID;
+    string itemID;
+    string duration;
     RequestStatus status;
-    std::string requestDate;
-    std::string notes;
+    string requestDate;
+    string notes;
 
 public:
-    Request(std::string reqID = "", std::string borrower = "", std::string item = "",
-            std::string dur = "", RequestStatus stat = RequestStatus::PENDING,
-            std::string date = "", std::string note = "");
+    Request(string reqID = "", string borrower = "", string item = "",
+            string dur = "", RequestStatus stat = RequestStatus::PENDING,
+            string date = "", string note = "");
 
-    std::string getRequestID() const { return requestID; }
-    std::string getID() const { return requestID; } // Alias for template compatibility
-    std::string getBorrowerID() const { return borrowerID; }
-    std::string getItemID() const { return itemID; }
-    std::string getDuration() const { return duration; }
+    string getRequestID() const { return requestID; }
+    string getID() const { return requestID; } // Alias for template compatibility
+    string getBorrowerID() const { return borrowerID; }
+    string getItemID() const { return itemID; }
+    string getDuration() const { return duration; }
+
     RequestStatus getStatus() const { return status; }
-    std::string getStatusString() const;
-    std::string getRequestDate() const { return requestDate; }
-    std::string getNotes() const { return notes; }
+    string getStatusString() const;
+    string getRequestDate() const { return requestDate; }
+    string getNotes() const { return notes; }
 
     void approve();
     void reject();
     void complete();
     void cancel();
-    void updateNotes(std::string newNotes);
+    void updateNotes(string newNotes);
 
     bool isPending() const;
     bool isActive() const;
     bool isApproved() const;
 
     bool canViewContact(std::string viewerID) const;
-    std::string getContactForViewer(std::string viewerID, const std::vector<User *> &allUsers) const;
-    std::string getEmailForViewer(std::string viewerID, const std::vector<User *> &allUsers) const;
+    string getContactForViewer(std::string viewerID, const vector<User *> &allUsers) const;
+    string getEmailForViewer(std::string viewerID, const vector<User *> &allUsers) const;
 
-    std::string getDetailsForBorrower(const std::vector<User *> &users, const std::vector<Item *> &items) const;
-    std::string getDetailsForLender(const std::vector<User *> &users, const std::vector<Item *> &items) const;
+    string getDetailsForBorrower(const vector<User *> &users, const std::vector<Item *> &items) const;
+    string getDetailsForLender(const vector<User *> &users, const std::vector<Item *> &items) const;
 
-    std::string serialize() const;
-    static Request *deserialize(const std::string &data);
+    string serialize() const;
+    static Request *deserialize(const string &data);
 
-    static std::string generateRequestID(int count);
+    static string generateRequestID(int count);
 
-    // === FRIEND FUNCTION + STREAMS === (operator<< for Request)
-    friend std::ostream &operator<<(std::ostream &os, const Request &req);
+    friend ostream &operator<<(ostream &os, const Request &req);
 };
 
 #endif

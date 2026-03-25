@@ -11,25 +11,27 @@
 #include <string>
 #include <fstream>
 
+using namespace std;
+
 class FileManager;
 
 struct WaitlistEntry
 {
-    std::string itemID;
-    std::string studentID;
-    std::string dateAdded;
+    string itemID;
+    string studentID;
+    string dateAdded;
 };
 
 class FileManager
 {
 private:
-    std::string usersFile;
-    std::string itemsFile;
-    std::string requestsFile;
-    std::string waitlistFile;
-    std::vector<WaitlistEntry> waitlist;
+    string usersFile;
+    string itemsFile;
+    string requestsFile;
+    string waitlistFile;
+    vector<WaitlistEntry> waitlist;
 
-    // === TEMPLATE CLASS USAGE === (DataStore<T> manages typed collections)
+    // template class used (DataStore<T> manages typed collections)
     DataStore<User> users;
     DataStore<Item> items;
     DataStore<Request> requests;
@@ -55,24 +57,32 @@ public:
     bool addUser(User *user);
     User *findUserById(int id) const;
     User *findUserByStudentId(const std::string &studentId) const;
-    std::vector<User *> getAllUsers() const;
+    vector<User *> getAllUsers() const;
     bool studentIdExists(const std::string &studentId) const;
 
     // Item management
     bool addItem(const Item &item);
     bool removeItem(int itemId);
     Item *findItemById(int id) const;
-    std::vector<Item *> getAllItems() const;
-    std::vector<Item *> searchAvailableItems(const std::string &query) const;
+    vector<Item *> getAllItems() const;
+    vector<Item *> searchAvailableItems(const std::string &query) const;
 
     // Request management
     bool addRequest(const Request &request);
     bool deleteRequest(int requestId);
     Request *findRequestById(int id) const;
-    std::vector<Request *> getAllRequests() const;
-    std::vector<Request *> getPendingRequestsForUser(int userId);
-    std::vector<Request *> getApprovedRequestsForUser(int userId);
+    vector<Request *> getAllRequests() const;
+    vector<Request *> getPendingRequestsForUser(int userId);
+    vector<Request *> getApprovedRequestsForUser(int userId);
     bool updateRequestStatus(int requestId, const std::string &newStatus);
+
+    // Waitlist management
+    bool addToWaitlist(const std::string &itemID, const std::string &studentID);
+    bool removeFromWaitlist(const std::string &itemID, const std::string &studentID);
+    vector<WaitlistEntry> getWaitlistForItem(const std::string &itemID) const;
+    bool isOnWaitlist(const std::string &itemID, const std::string &studentID) const;
+    string promoteFromWaitlist(const std::string &itemID);
+    int getWaitlistCount(const std::string &itemID) const;
 
     // Authentication
     bool login(const std::string &studentId, const std::string &pin);
@@ -89,13 +99,6 @@ public:
     int countItems() const;
     int countRequests() const;
 
-    // Waitlist
-    bool addToWaitlist(const std::string &itemID, const std::string &studentID);
-    bool removeFromWaitlist(const std::string &itemID, const std::string &studentID);
-    std::vector<WaitlistEntry> getWaitlistForItem(const std::string &itemID) const;
-    bool isOnWaitlist(const std::string &itemID, const std::string &studentID) const;
-    std::string promoteFromWaitlist(const std::string &itemID);
-    int getWaitlistCount(const std::string &itemID) const;
 };
 
 #endif

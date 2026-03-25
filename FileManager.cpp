@@ -12,8 +12,7 @@
 
 using namespace std;
 
-// ==================== CONSTRUCTORS/DESTRUCTOR ====================
-
+//create file if it doesn't exist, used in constructor to ensure all files are present before loading/saving
 FileManager::FileManager() : currentUser(nullptr)
 {
     usersFile = "users.txt";
@@ -30,6 +29,7 @@ FileManager::FileManager() : currentUser(nullptr)
     loadWaitlist();
 }
 
+// Overloaded constructor to specify custom file paths (useful for testing)
 FileManager::FileManager(string usrs, string itms, string reqs)
     : usersFile(usrs), itemsFile(itms), requestsFile(reqs), currentUser(nullptr)
 {
@@ -46,7 +46,7 @@ FileManager::FileManager(string usrs, string itms, string reqs)
 
 FileManager::~FileManager()
 {
-    // === EXCEPTION HANDLING in destructor ===
+    
     try
     {
         saveAllData();
@@ -63,7 +63,6 @@ FileManager::~FileManager()
     // DataStore destructors automatically clean up all pointers
 }
 
-// ==================== HELPER METHODS ====================
 
 void FileManager::createFileIfNotExists(const string &filename)
 {
@@ -75,7 +74,7 @@ void FileManager::createFileIfNotExists(const string &filename)
     }
 }
 
-void FileManager::loadAllData()
+void FileManager::loadAllData()//reading from the data files, using ifstream and deserialization methods from User, Item, and Request classes
 {
     // Clear existing data (DataStore::clear() handles memory deallocation)
     users.clear();
@@ -83,7 +82,7 @@ void FileManager::loadAllData()
     requests.clear();
     currentUser = nullptr;
 
-    // === EXCEPTION HANDLING + STREAMS: File loading with error handling ===
+    // EXCEPTION HANDLING + STREAMS: File loading with error handlings
     // Load users using User::deserialize()
     ifstream userFile(usersFile);
     if (!userFile.is_open())
@@ -159,9 +158,9 @@ void FileManager::loadAllData()
     requestFile.close();
 }
 
-bool FileManager::saveAllData()
+bool FileManager::saveAllData()//writing to the data files, using ofstream and serialization methods from User, Item, and Request classes
 {
-    // === STREAMS: Using ofstream for file output ===
+    // STREAMS: Using ofstream for file output 
     // Save users
     ofstream userFile(usersFile);
     if (!userFile.is_open())
@@ -455,6 +454,12 @@ User *FileManager::getCurrentUser() const
     return currentUser;
 }
 
+
+
+
+
+
+//auto incrementation is here
 // ==================== AUTO-INCREMENT IDs ====================
 // Using DataStore::getMaxId() template method
 
@@ -500,6 +505,8 @@ bool FileManager::saveAllDataToFiles()
 {
     return saveAllData();
 }
+
+
 
 // ==================== WAITLIST MANAGEMENT ====================
 

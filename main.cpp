@@ -6,7 +6,7 @@ using namespace std;
 
 int main()
 {
-    // === EXCEPTION HANDLING: Top-level try-catch for unhandled exceptions ===
+    // Top-level try-catch for unhandled exceptions
     try
     {
         SystemManager system;

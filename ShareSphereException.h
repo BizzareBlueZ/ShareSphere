@@ -4,9 +4,6 @@
 #include <exception>
 #include <string>
 
-// ============================================================
-// === EXCEPTION HANDLING: Custom Exception Class Hierarchy  ===
-// ============================================================
 
 // Base exception class for all ShareSphere exceptions (inherits from std::exception)
 class ShareSphereException : public std::exception

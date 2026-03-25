@@ -23,6 +23,7 @@ string Item::getCategoryString() const
 
 string Item::getDetails() const
 {
+    // === STRINGSTREAM: Formatting item details for display ===
     stringstream ss;
     ss << "Item ID: " << itemID << "\n"
        << "Name: " << name << "\n"
@@ -39,6 +40,7 @@ bool Item::matchesSearch(const string &keyword) const
     if (keyword.empty())
         return true;
 
+            // Convert all strings to lowercase for case-insensitive search
     string keywordLower = keyword;
     transform(keywordLower.begin(), keywordLower.end(), keywordLower.begin(), ::tolower);
 
@@ -140,7 +142,8 @@ string Item::getCurrentDate()
     return ss.str();
 }
 
-// === FRIEND FUNCTION + STREAMS: operator<< overload for Item ===
+
+//friend function to overload the stream insertion operator for Item class, allowing easy printing of item details
 ostream &operator<<(ostream &os, const Item &item)
 {
     os << "[" << item.getCategoryString() << "] " << item.name
