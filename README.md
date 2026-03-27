@@ -32,21 +32,6 @@ The platform replaces informal borrowing with a centralized solution that manage
 - Qt 5 or 6 (with Qt Widgets)
 - CMake
 
-### Build (Console)
-g++ -std=c++17 -Wall -Wextra -o ShareSphere src/*.cpp
-
-### Run (Console)
-./ShareSphere
-
-### Build with CMake
-mkdir build
-cd build
-cmake ..
-make
-
-### Run GUI (Windows)
-./runqt.bat
-
 ## Data Storage
 
 The system uses text files for persistence:
@@ -146,6 +131,8 @@ Request.*             - Borrow request handling
 Validator.*           - Input validation  
 *.txt                 - Data storage files  
 runqt.bat             - Windows GUI launcher  
+
+
 ## Data Files
 
 - `users.txt` — All users and students
@@ -153,4 +140,3 @@ runqt.bat             - Windows GUI launcher
 - `requests.txt` — All requests
 - `waitlist.txt` — Waitlist info
 
-## Thanks!
