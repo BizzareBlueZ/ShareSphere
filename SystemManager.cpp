@@ -16,8 +16,7 @@
 #include <sstream>
 #include <algorithm>
 
-
-//cli part not used for gui ...basically assimilation working part
+// cli part not used for gui ...basically assimilation working part
 
 using namespace std;
 
@@ -398,173 +397,66 @@ void SystemManager::showDashboardWindow()
 {
     while (true)
     {
-        // === EXCEPTION HANDLING: Wrap dashboard operations ===
-        try
+        Student *stu = dynamic_cast<Student *>(currentUser);
+        cout << "\n";
+        printBoxBorder('=');
+        printBoxCentered("DASHBOARD");
+        printBoxBorder('=');
+        printBoxLine("  Student: " + currentUser->getFullName());
+        printBoxLine("  ID: " + currentUser->getID() + " | " + currentUser->getDepartment() +
+                     " Year " + (stu ? to_string(stu->getYear()) : "?"));
+        printBoxLine("  Items: " + to_string(fileManager.countItems()) +
+                     " | Requests: " + to_string(fileManager.countRequests()));
+        printBoxBorder('=');
+
+        // PANEL 1: Received Requests
+        displayReceivedRequestsPanel();
+
+        // PANEL 2: Share Area
+        displayShareAreaPanel();
+
+        // ACTIONS
+        cout << "\n";
+        printBoxBorder('-');
+        printBoxCentered("ACTIONS");
+        printBoxBorder('-');
+        printBoxLine("  1. BORROW  - Search and Request an Item");
+        printBoxLine("  2. LEND    - Add New Item to Share");
+        printBoxLine("  3. REFRESH - Reload Dashboard");
+        printBoxLine("  4. PROFILE - View My Profile");
+        printBoxLine("  5. MANAGE  - Manage My Items");
+        printBoxLine("  6. LOGOUT  - Return to Login");
+        printBoxLine("  7. EXIT    - Close Program");
+        printBoxBorder('-');
+        cout << "  Enter choice (1-7): ";
+
+        int choice = getMenuChoice(1, 7);
+
+        switch (choice)
         {
-            Student *stu = dynamic_cast<Student *>(currentUser);
-            cout << "\n";
-            printBoxBorder('=');
-            printBoxCentered("DASHBOARD");
-            printBoxBorder('=');
-            printBoxLine("  Student: " + currentUser->getFullName());
-            printBoxLine("  ID: " + currentUser->getID() + " | " + currentUser->getDepartment() +
-                         " Year " + (stu ? to_string(stu->getYear()) : "?"));
-            printBoxLine("  Items: " + to_string(fileManager.countItems()) +
-                         " | Requests: " + to_string(fileManager.countRequests()));
-            printBoxBorder('=');
-
-            // PANEL 1: Received Requests
-            displayReceivedRequestsPanel();
-
-            // PANEL 2: Share Area
-            displayShareAreaPanel();
-
-            // ACTIONS
-            cout << "\n";
-            printBoxBorder('-');
-            printBoxCentered("ACTIONS");
-            printBoxBorder('-');
-            printBoxLine("  1. BORROW  - Search and Request an Item");
-            printBoxLine("  2. LEND    - Add New Item to Share");
-            printBoxLine("  3. REFRESH - Reload Dashboard");
-            printBoxLine("  4. PROFILE - View My Profile");
-            printBoxLine("  5. MANAGE  - Manage My Items");
-            printBoxLine("  6. LOGOUT  - Return to Login");
-            printBoxLine("  7. EXIT    - Close Program");
-            printBoxBorder('-');
-            cout << "  Enter choice (1-7): ";
-
-            int choice = getMenuChoice(1, 7);
-
-            switch (choice)
-            {
-            case 1:
-                handleBorrowAction();
-                break;
-            case 2:
-                handleLendAction();
-                break;
-            case 3:
-                cout << "  Refreshing...\n";
-                break;
-            case 4:
-                displayUserProfile();
-                break;
-            case 5:
-                displayMyItemsPanel();
-                break;
-            case 6:
-                fileManager.logout();
-                cout << "\n  [OK] Logged out successfully.\n";
-                return;
-            case 7:
-                cout << "\n  Exiting ShareSphere...\n";
-                fileManager.saveAllDataToFiles();
-                exit(0);
-            }
-            // ==================== PANEL: MANAGE MY ITEMS ====================
-            void SystemManager::displayMyItemsPanel()
-            {
-                cout << "\n  --- MY ITEMS ---\n";
-                vector<Item *> myItems;
-                for (Item *item : fileManager.getAllItems())
-                {
-                    if (item->getOwnerID() == currentUser->getID())
-                    {
-                        myItems.push_back(item);
-                    }
-                }
-                if (myItems.empty())
-                {
-                    cout << "  (You have not added any items.)\n";
-                    cout << "  Press Enter to return...";
-                    cin.ignore();
-                    return;
-                }
-                while (true)
-                {
-                    cout << "\n  Your Items:" << endl;
-                    for (size_t i = 0; i < myItems.size(); ++i)
-                    {
-                        cout << "  " << (i + 1) << ". " << myItems[i]->getName() << " | "
-                             << myItems[i]->getCategoryString() << " | "
-                             << myItems[i]->getDescription() << " | "
-                             << (myItems[i]->getAvailable() ? "Available" : "Borrowed") << endl;
-                    }
-                    cout << "\n  Select item to [E]dit, [D]elete, or [B]ack: ";
-                    string input;
-                    getline(cin, input);
-                    if (input == "B" || input == "b")
-                        break;
-                    if (input.empty())
-                        continue;
-                    int idx = -1;
-                    char action = 0;
-                    if (isdigit(input[0]))
-                    {
-                        idx = stoi(input) - 1;
-                        cout << "  [E]dit or [D]elete this item? ";
-                        getline(cin, input);
-                        if (!input.empty())
-                            action = toupper(input[0]);
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                    if (idx < 0 || idx >= (int)myItems.size())
-                    {
-                        cout << "  [!] Invalid item number.\n";
-                        continue;
-                    }
-                    Item *item = myItems[idx];
-                    if (action == 'E')
-                    {
-                        cout << "  New name (leave blank to keep): ";
-                        string newName;
-                        getline(cin, newName);
-                        if (!newName.empty())
-                            item->setName(newName);
-                        cout << "  New description (leave blank to keep): ";
-                        string newDesc;
-                        getline(cin, newDesc);
-                        if (!newDesc.empty())
-                            item->setDescription(newDesc);
-                        fileManager.saveAllDataToFiles();
-                        cout << "  [OK] Item updated.\n";
-                    }
-                    else if (action == 'D')
-                    {
-                        cout << "  Are you sure you want to delete this item? (y/n): ";
-                        string confirm;
-                        getline(cin, confirm);
-                        if (confirm == "y" || confirm == "Y")
-                        {
-                            fileManager.removeItem(stoi(item->getID()));
-                            fileManager.saveAllDataToFiles();
-                            myItems.erase(myItems.begin() + idx);
-                            cout << "  [OK] Item deleted.\n";
-                            if (myItems.empty())
-                            {
-                                cout << "  (No more items.)\n";
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        cout << "  [!] Invalid action.\n";
-                    }
-                }
-                cout << "  Press Enter to return...";
-                cin.ignore();
-            }
-        }
-        catch (const ShareSphereException &e)
-        {
-            cerr << "\n  [!] Error: " << e.what() << endl;
-            cout << "  Press Enter to continue...";
-            cin.ignore();
+        case 1:
+            handleBorrowAction();
+            break;
+        case 2:
+            handleLendAction();
+            break;
+        case 3:
+            cout << "  Refreshing...\n";
+            break;
+        case 4:
+            displayUserProfile();
+            break;
+        case 5:
+            displayMyItemsPanel();
+            break;
+        case 6:
+            fileManager.logout();
+            cout << "\n  [OK] Logged out successfully.\n";
+            return;
+        case 7:
+            cout << "\n  Exiting ShareSphere...\n";
+            fileManager.saveAllDataToFiles();
+            exit(0);
         }
     }
 }
@@ -1106,4 +998,101 @@ int SystemManager::getMenuChoice(int min, int max)
             return choice;
         }
     }
+}
+
+void SystemManager::displayMyItemsPanel()
+{
+    cout << "\n  --- MY ITEMS ---\n";
+    vector<Item *> myItems;
+    for (Item *item : fileManager.getAllItems())
+    {
+        if (item->getOwnerID() == currentUser->getID())
+        {
+            myItems.push_back(item);
+        }
+    }
+    if (myItems.empty())
+    {
+        cout << "  (You have not added any items.)\n";
+        cout << "  Press Enter to return...";
+        cin.ignore();
+        return;
+    }
+    while (true)
+    {
+        cout << "\n  Your Items:" << endl;
+        for (size_t i = 0; i < myItems.size(); ++i)
+        {
+            cout << "  " << (i + 1) << ". " << myItems[i]->getName() << " | "
+                 << myItems[i]->getCategoryString() << " | "
+                 << myItems[i]->getDescription() << " | "
+                 << (myItems[i]->getAvailable() ? "Available" : "Borrowed") << endl;
+        }
+        cout << "\n  Select item to [E]dit, [D]elete, or [B]ack: ";
+        string input;
+        getline(cin, input);
+        if (input == "B" || input == "b")
+            break;
+        if (input.empty())
+            continue;
+        int idx = -1;
+        char action = 0;
+        if (isdigit(input[0]))
+        {
+            idx = stoi(input) - 1;
+            cout << "  [E]dit or [D]elete this item? ";
+            getline(cin, input);
+            if (!input.empty())
+                action = toupper(input[0]);
+        }
+        else
+        {
+            continue;
+        }
+        if (idx < 0 || idx >= (int)myItems.size())
+        {
+            cout << "  [!] Invalid item number.\n";
+            continue;
+        }
+        Item *item = myItems[idx];
+        if (action == 'E')
+        {
+            cout << "  New name (leave blank to keep): ";
+            string newName;
+            getline(cin, newName);
+            if (!newName.empty())
+                item->setName(newName);
+            cout << "  New description (leave blank to keep): ";
+            string newDesc;
+            getline(cin, newDesc);
+            if (!newDesc.empty())
+                item->setDescription(newDesc);
+            fileManager.saveAllDataToFiles();
+            cout << "  [OK] Item updated.\n";
+        }
+        else if (action == 'D')
+        {
+            cout << "  Are you sure you want to delete this item? (y/n): ";
+            string confirm;
+            getline(cin, confirm);
+            if (confirm == "y" || confirm == "Y")
+            {
+                fileManager.removeItem(stoi(item->getID()));
+                fileManager.saveAllDataToFiles();
+                myItems.erase(myItems.begin() + idx);
+                cout << "  [OK] Item deleted.\n";
+                if (myItems.empty())
+                {
+                    cout << "  (No more items.)\n";
+                    break;
+                }
+            }
+        }
+        else
+        {
+            cout << "  [!] Invalid action.\n";
+        }
+    }
+    cout << "  Press Enter to return...";
+    cin.ignore();
 }

@@ -1,60 +1,151 @@
-# Welcome to ShareSphere!
+# ShareSphere
 
-ShareSphere is your friendly campus sharing hub, built with C++ and Qt. Whether you want to lend, borrow, or just keep track of your stuff and connections, ShareSphere makes it easy to navigate around in the daily needs sharing world. Primarily it is designed for students in a particular campus who want a simple, modern way to manage shared items and requests.
+## The Idea
+ShareSphere is a campus item-sharing platform developed in C++17 with a Qt-based graphical interface and a console-based alternative.
 
-## What Can You Do with ShareSphere?
+It enables students to lend and borrow items such as textbooks, lab equipment, and daily essentials through a structured and reliable system.
 
-- Log in securely with your student ID and PIN
-- Add, edit, or remove items you want to share
-- Request to borrow items from others, or accept/reject requests for your own
-- Join a waitlist if something you want isn’t available yet
-- See and manage your connections with other users
-- Enjoy a clean, modern interface with both light and dark themes
+The platform replaces informal borrowing with a centralized solution that manages listings, requests, and interactions efficiently while maintaining user privacy.
+
+
+## Features
+
+- Secure authentication using student ID and PIN
+- Item management (add, browse, search, remove listings)
+- Borrow request system with approval/rejection workflow
+- Waitlist system for unavailable items
+- Connection management between users
+- Dual interface:
+  - Qt-based GUI (light/dark theme)
+  - Console-based application
+
+## Technologies Used
+
+- Language: C++17  
+- Framework: Qt (Qt Widgets)  
+- Build System: CMake  
+- Storage: Plain text files  
+## Build and Execution
+
+### Requirements
+- C++17 compatible compiler (GCC / MinGW / MSVC)
+- Qt 5 or 6 (with Qt Widgets)
+- CMake
+
+### Build (Console)
+g++ -std=c++17 -Wall -Wextra -o ShareSphere src/*.cpp
+
+### Run (Console)
+./ShareSphere
+
+### Build with CMake
+mkdir build
+cd build
+cmake ..
+make
+
+### Run GUI (Windows)
+./runqt.bat
+
+## Data Storage
+
+The system uses text files for persistence:
+
+- users.txt — user data  
+- items.txt — item listings  
+- requests.txt — borrow requests  
+- waitlist.txt — waitlist entries  
+
+All data is loaded at startup and updated immediately after any modification.
 
 ## Getting Started
 
-**What you’ll need:**
+Follow these steps to quickly clone, run, and test the project.
 
-- Qt 5 or 6 (with Qt Widgets)
-- A C++17 compatible compiler (MinGW, MSVC, GCC, etc.)
-- CMake
+---
 
-**How to set up:**
+### 1. Clone the Repository
+git clone https://github.com/BizzareBlueZ/ShareSphere.git
+cd ShareSphere
 
-1. Clone this repository to your computer
-2. Open it in your favorite IDE or use CMake to configure the project
-3. Build the project (with your IDE or `make`/`mingw32-make`)
+---
 
-**How to run ShareSphere from the terminal in vscode**
+### 2. Make Sure Data Files Exist
 
-**To run the Qt (GUI) version:** 
-		./runqt.bat
+Before running, ensure these files are present in the root directory:
 
-**To run the console version:** - 
-        make run
-		
+- users.txt  
+- items.txt  
+- requests.txt  
+- waitlist.txt  
 
-## How to Use
+If they are empty, the system will still run and populate them during use.
 
-1. Open ShareSphere and log in
-2. Browse available items, or add your own
-3. Send requests to borrow, or respond to requests from others
-4. Manage your waitlist and connections
-5. Enjoy sharing and connecting!
+---
+
+### 3. Choose How You Want to Run
+
+You can run the project in two ways:
+
+- Console (CLI) version  
+- GUI (Qt) version  
+
+---
+
+## Run Console Version (CLI|| build done with the help of makefile)
+
+### Compile
+make
+
+### Run
+make run
+
+### Quick Demo (CLI)
+- Log in using a valid user (or create one if supported)
+- Add an item
+- Search or browse items
+- Send a borrow request
+- Accept/reject from another account (if testing multiple users)
+
+---
+
+## Run GUI Version (Qt)
+
+### Option 1 (Windows)
+./runqt.bat
+
+### Option 2 (Qt Creator)
+- Open the project in Qt Creator
+- Configure the Qt kit (compiler + Qt version)
+- Click “Run”
+
+### Quick Demo (GUI)
+- Log in from the interface
+- Add or browse items
+- Send a borrow request
+- Approve/reject requests from the UI
+- Observe waitlist behavior if item is unavailable
+
+---
+
+## Notes
+
+- All changes are saved automatically to `.txt` files  
+- Both GUI and CLI use the same backend logic  
+- You can switch between versions without losing data  
 
 ## Project Structure
 
-- `main_qt.cpp` — The heart of the GUI
-- `main.cpp` — Console version entry point
-- `FileManager.*` — Handles all the data behind the scenes
-- `Student.*`, `User.*` — User and student details
-- `Item.*` — All about the items
-- `Request.*` — Request logic
-- `Validator.*` — Checks your input
-- `SystemManager.*` — Console logic
-- `*.txt` — Where your data lives (users, items, requests, waitlist)
-- `runqt.bat` — Quick launch for Windows
-
+main.cpp              - Console entry point  
+main_qt.cpp           - GUI entry point  
+FileManager.*         - File I/O and data persistence  
+SystemManager.*       - Core application logic  
+User.*, Student.*     - User hierarchy  
+Item.*                - Item management  
+Request.*             - Borrow request handling  
+Validator.*           - Input validation  
+*.txt                 - Data storage files  
+runqt.bat             - Windows GUI launcher  
 ## Data Files
 
 - `users.txt` — All users and students

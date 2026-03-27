@@ -48,7 +48,7 @@ public:
     // Setters
     void updateStatus(bool available);
     void setName(const std::string& newName);
- void setDescription(const std::string& newDesc);
+    void setDescription(const std::string& newDesc);
 
     // Utility
     string getCategoryString() const;

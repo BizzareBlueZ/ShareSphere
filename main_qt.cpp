@@ -1572,7 +1572,8 @@ void DashboardPage::refreshConnections()
 
                     if (itm) {
                         string nextStudent = fileManager->promoteFromWaitlist(itm->getID());
-                        if (!nextStudent.empty()) {
+                        if (!nextStudent.empty())//this is whwere the checking waitlist part happens, if there is a waitlist, it will auto create a request for the next person and notify them
+                         {
                             int newReqId = fileManager->getNextRequestId();
                             time_t now = time(0);
                             tm* ltm = localtime(&now);
@@ -1643,23 +1644,21 @@ void DashboardPage::checkWaitlistNotifications()
 {
     User *user = fileManager->getCurrentUser();
     if (!user)
-        return;
+        return;//if there is no user, return
 
     vector<Request *> allReqs = fileManager->getAllRequests();
-    for (Request *req : allReqs)
+    for (Request *req : allReqs)//goes thru all requests to find any pending requests that were auto-created from the waitlist for this user
     {
         if (req->getBorrowerID() == user->getID() &&
             req->isPending() &&
-            req->getNotes().find("Auto-created from waitlist") != string::npos)
+            req->getNotes().find("Auto-created from waitlist") != string::npos)//checks for any pending requests that were auto-created from the waitlist for this user
         {
             Item *item = nullptr;
             try
             {
                 item = fileManager->findItemById(stoi(req->getItemID()));
             }
-            catch (...)
-            {
-            }
+            catch (...){}
             QString itemName = item
                                    ? QString::fromStdString(item->getName())
                                    : "an item";
