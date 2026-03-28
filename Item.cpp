@@ -16,11 +16,13 @@ void Item::updateStatus(bool available)
     isAvailable = available;
 }
 
-void Item::setName(const std::string& newName) {
+void Item::setName(const std::string &newName)
+{
     name = newName;
 }
 
-void Item::setDescription(const std::string& newDesc) {
+void Item::setDescription(const std::string &newDesc)
+{
     description = newDesc;
 }
 
@@ -43,12 +45,12 @@ string Item::getDetails() const
     return ss.str();
 }
 
-bool Item::matchesSearch(const string &keyword) const
+bool Item::matchesSearch(const string &keyword) const // used for searching items based on name, category, or description. it checks if the keyword is a substring of any of those fields (case-insensitive)
 {
     if (keyword.empty())
         return true;
 
-            // Convert all strings to lowercase for case-insensitive search
+    // Convert all strings to lowercase for case-insensitive search
     string keywordLower = keyword;
     transform(keywordLower.begin(), keywordLower.end(), keywordLower.begin(), ::tolower);
 
@@ -150,8 +152,7 @@ string Item::getCurrentDate()
     return ss.str();
 }
 
-
-//friend function to overload the stream insertion operator for Item class, allowing easy printing of item details
+// friend function to overload the stream insertion operator for Item class, allowing easy printing of item details
 ostream &operator<<(ostream &os, const Item &item)
 {
     os << "[" << item.getCategoryString() << "] " << item.name

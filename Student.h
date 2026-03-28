@@ -3,7 +3,7 @@
 
 #include "User.h"
 
-class Student : public User
+class Student : public User // inherits from User, so it has all the basic user info plus student-specific info like year and verification status
 {
 private:
     int year;

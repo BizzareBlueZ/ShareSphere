@@ -20,7 +20,7 @@
 
 using namespace std;
 
-namespace
+namespace // Helper functions for CLI UI formatting
 {
     const int BOX_INNER_WIDTH = 58;
 
@@ -696,7 +696,7 @@ void SystemManager::handleGotBack(int requestId)
 
                 User *waitUser = fileManager.findUserByStudentId(nextStudentID);
                 cout << "  [!] Waitlisted user "
-                     << (waitUser ? waitUser->getFullName() : nextStudentID)
+                     << (waitUser ? waitUser->getFullName() : nextStudentID) // if user found, show name, else show ID...why? because in some edge cases the user might have been deleted but still on waitlist, so we want to handle that gracefully without crashing
                      << " auto-notified with a pending request!\n";
             }
         }

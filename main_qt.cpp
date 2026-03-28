@@ -155,7 +155,6 @@ static const QString DARK_THEME = R"(
     QComboBox QAbstractItemView { background: #0c1420; color: #c8dce8; selection-background-color: #2a5080; }
 )";
 
-// =================== FORWARD DECLARATIONS ===================
 class LoginPage;
 class DashboardPage;
 
@@ -170,22 +169,23 @@ private slots:
     void showLogin();
     void toggleTheme();
 
-private:
+private: // all data and logic for the app is managed through this file manager instance.....loginpage and dashboardpage will call its methods to perform actions and retrieve data
     FileManager fileManager;
     QStackedWidget *stack;
     LoginPage *loginPage;
     DashboardPage *dashboardPage;
-    bool isDarkTheme;
+    bool Theme;
     void applyTheme();
 };
 
 // =================== LOGIN PAGE ===================
+// graphical part ...not much logic here except for the login button click handler which will call filemanager.login() and emit loginSuccess() if successful. also has a paintEvent override to draw the custom background gradient
 class LoginPage : public QWidget
 {
     Q_OBJECT
 public:
     LoginPage(FileManager *fm, QWidget *parent = nullptr);
-    void setDarkMode(bool dark);
+    void setMode(bool dark);
 signals:
     void loginSuccess();
 private slots:
@@ -220,7 +220,7 @@ class DashboardPage : public QWidget
 public:
     DashboardPage(FileManager *fm, QWidget *parent = nullptr);
     void refreshAll();
-    void setDarkTheme(bool dark) { darkTheme = dark; }
+    void setTheme(bool dark) { darkTheme = dark; }
 signals:
     void logoutRequested();
     void themeToggleRequested();
@@ -268,12 +268,12 @@ private:
     void refreshConnections();
     void refreshProfile();
 
-    void checkWaitlistNotifications();
+    void checkWaitlistNotifications(); // waitlist notifications are shown as a message box when the user logs in and also when they refresh the dashboard. this method checks if there are any waitlist promotions for the current user and shows them a message if so. it is called from refreshAll() which is called when the user logs in and also when they click the refresh button on the dashboard.
 };
 
 // =================== MAIN WINDOW IMPL ===================
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), isDarkTheme(false)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Theme(false)
 {
     setWindowTitle("ShareSphere - Student Item Sharing");
     setMinimumSize(900, 650);
@@ -308,21 +308,21 @@ void MainWindow::showLogin()
     stack->setCurrentWidget(loginPage);
 }
 
-void MainWindow::toggleTheme()
+void MainWindow::toggleTheme() // toggles between light and dark themes. called when the user clicks the theme toggle button on the dashboard. it updates the Theme flag and then calls applyTheme() to update the stylesheets of all widgets.
 {
-    isDarkTheme = !isDarkTheme;
+    Theme = !Theme;
     applyTheme();
 }
 
 void MainWindow::applyTheme()
 {
-    qApp->setStyleSheet(isDarkTheme ? DARK_THEME : LIGHT_THEME);
-    loginPage->setDarkMode(isDarkTheme);
-    dashboardPage->setDarkTheme(isDarkTheme);
+    qApp->setStyleSheet(Theme ? DARK_THEME : LIGHT_THEME);
+    loginPage->setMode(Theme);
+    dashboardPage->setTheme(Theme);
 }
 
-// =================== LOGIN PAGE IMPL ===================
-
+// =================== LOGIN PAGE IMPLEMENTATION ===================
+// graphical part ...not much logic here except for the login button click handler which will call filemanager.login() and emit loginSuccess() if successful. also has a paintEvent override to draw the custom background gradient
 LoginPage::LoginPage(FileManager *fm, QWidget *parent)
     : QWidget(parent), fileManager(fm), darkMode(true),
       bgCachedWidth(0), bgCachedHeight(0), bgCachedDark(true)
@@ -446,7 +446,10 @@ LoginPage::LoginPage(FileManager *fm, QWidget *parent)
             { pinEdit->setFocus(); });
 }
 
-void LoginPage::setDarkMode(bool dark)
+// graphical part ...not much logic here except for the login button click handler which will call filemanager.login() and emit loginSuccess() if successful. also has a paintEvent override to draw the custom background gradient
+// the setMode method is called from the main window when the theme is toggled. it updates the stylesheets of all the widgets on the login page to match the new theme and then calls update() to repaint the page with the new styles.
+
+void LoginPage::setMode(bool dark)
 {
     darkMode = dark;
     bgCachedWidth = 0;
@@ -493,6 +496,7 @@ void LoginPage::setDarkMode(bool dark)
     update();
 }
 
+// graphical part again
 void LoginPage::generateBackground(int w, int h, bool dark)
 {
     bgCached = QPixmap(w, h);
@@ -528,6 +532,7 @@ void LoginPage::generateBackground(int w, int h, bool dark)
     bgCachedDark = dark;
 }
 
+// graphics
 void LoginPage::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
@@ -540,10 +545,15 @@ void LoginPage::paintEvent(QPaintEvent *event)
     painter.drawPixmap(0, 0, bgCached);
 }
 
+// here comes the login logic. when the user clicks the login button, this method is called. it retrieves the entered student ID and PIN,
+//  checks if they are not empty, and then calls fileManager->login() to verify the credentials. if the login is successful, it clears the input fields and status message, and emits the loginSuccess() signal to show the dashboard. if the login fails, it updates the status label to inform the user.
 void LoginPage::onLogin()
 {
     QString id = studentIdEdit->text().trimmed();
     QString pin = pinEdit->text().trimmed();
+
+    // it is just normal checkup...as u always gonna have validity here bcs invalid stuffs cant be entered when creating profile b4 hand....so
+    // it is just normal matching
 
     if (id.isEmpty() || pin.isEmpty())
     {
@@ -551,7 +561,7 @@ void LoginPage::onLogin()
         return;
     }
 
-    if (fileManager->login(id.toStdString(), pin.toStdString()))
+    if (fileManager->login(id.toStdString(), pin.toStdString())) // when login successful, we want to clear the fields and status for next time, and also emit a signal to show the dashboard
     {
         statusLabel->setText("");
         studentIdEdit->clear();
@@ -564,9 +574,12 @@ void LoginPage::onLogin()
     }
 }
 
+// the create account button on the login page opens a dialog where the user can enter their details to create a new student account.
+// this method creates the dialog and its widgets, calls fileManager->addUser() to create the account. if the account is created successfully
 void LoginPage::onCreateAccount()
 {
-    QDialog dialog(this);
+    // how profile making look like as a dialog box
+    QDialog dialog(this); // current widget
     dialog.setWindowTitle("Create Student Account");
     dialog.setMinimumWidth(420);
 
@@ -610,6 +623,7 @@ void LoginPage::onCreateAccount()
     layout->addWidget(submitBtn);
     layout->addWidget(resultLabel);
 
+    // main acc logic
     FileManager *fm = fileManager;
     connect(submitBtn, &QPushButton::clicked, [&, fm]()
             {
@@ -619,22 +633,22 @@ void LoginPage::onCreateAccount()
         string phone = phoneEdit->text().trimmed().toStdString();
         string email = emailEdit->text().trimmed().toStdString();
 
-        if (sid.empty() || name.empty() || phone.empty()) {
+        if (sid.empty() || name.empty() || phone.empty()) {//these 3 mandatory fields must be filled
             resultLabel->setStyleSheet("color: #e74c3c;");
             resultLabel->setText("Student ID, Name, and Phone are required.");
             return;
         }
-        if (!Validator::isValidStudentID(sid)) {
+        if (!Validator::isValidStudentID(sid)) {//valid id check
             resultLabel->setStyleSheet("color: #e74c3c;");
             resultLabel->setText("Invalid Student ID format.");
             return;
         }
-        if (fm->studentIdExists(sid)) {
+        if (fm->studentIdExists(sid)) {//duplicate id check
             resultLabel->setStyleSheet("color: #e74c3c;");
             resultLabel->setText("Student ID already registered.");
             return;
         }
-        if (!Validator::isValidPhone(phone)) {
+        if (!Validator::isValidPhone(phone)) {//valid phone no checked
             resultLabel->setStyleSheet("color: #e74c3c;");
             resultLabel->setText("Invalid phone format (11 digits, starts with 01).");
             return;
@@ -644,18 +658,24 @@ void LoginPage::onCreateAccount()
             resultLabel->setText("Invalid email format.");
             return;
         }
+        //all validity check are done from validator class methods. 
 
-        bool verified = !email.empty() && Validator::isValidEmail(email);
+        bool verified = !email.empty() && Validator::isValidEmail(email);//if email given ....verified ...else no
 
+        //gets the entry year from id
         string yearStr = sid.substr(0, 2);
         int entryYear = stoi(yearStr);
-        int studentYear = 26 - entryYear + 1;
-        if (studentYear < 1) studentYear = 1;
-        if (studentYear > 4) studentYear = 4;
+        // Get current year (last two digits)
+        time_t now = time(0);//get current time
+        tm *ltm = localtime(&now);//get local time structure
+        int currentYear = (ltm->tm_year + 1900) % 100;//get last two digits of current year
+        int studentYear = currentYear - entryYear + 1;
+        
 
         srand(static_cast<unsigned>(time(0)));
-        string pin = to_string(1000 + rand() % 9000);
+        string pin = to_string(1000 + rand() % 9000);//pin generates a random 4 digit pin between 1000-9999
 
+        //creates the student object with the given details and the generated pin. the borrow.c= 0 
         Student* newStudent = new Student(sid, pin, name, dept, phone, email, 0, studentYear, verified);
 
         try {
@@ -675,8 +695,8 @@ void LoginPage::onCreateAccount()
     dialog.exec();
 }
 
-// =================== DASHBOARD PAGE IMPL ===================
-
+// =================== DASHBOARD PAGE IMPLEMENTATION ===================
+// graphical part
 DashboardPage::DashboardPage(FileManager *fm, QWidget *parent)
     : QWidget(parent), fileManager(fm)
 {
@@ -700,7 +720,6 @@ DashboardPage::DashboardPage(FileManager *fm, QWidget *parent)
     topBar->addSpacing(12);
     topBar->addWidget(welcomeLabel);
     topBar->addStretch();
-    topBar->addWidget(refreshBtn);
     topBar->addWidget(themeBtn);
     topBar->addWidget(logoutBtn);
 
@@ -736,7 +755,7 @@ DashboardPage::DashboardPage(FileManager *fm, QWidget *parent)
 }
 
 // =================== TAB SETUP ===================
-
+// graphical part for main dashboard
 void DashboardPage::setupBrowseTab(QWidget *tab)
 {
     QVBoxLayout *layout = new QVBoxLayout(tab);
@@ -773,6 +792,7 @@ void DashboardPage::setupBrowseTab(QWidget *tab)
     connect(searchEdit, &QLineEdit::returnPressed, this, &DashboardPage::onSearch);
 }
 
+// graphical part for item
 void DashboardPage::setupMyItemsTab(QWidget *tab)
 {
     QVBoxLayout *layout = new QVBoxLayout(tab);
@@ -796,6 +816,7 @@ void DashboardPage::setupMyItemsTab(QWidget *tab)
     connect(addBtn, &QPushButton::clicked, this, &DashboardPage::onAddItem);
 }
 
+// graphical part of request
 void DashboardPage::setupRequestsTab(QWidget *tab)
 {
     QVBoxLayout *layout = new QVBoxLayout(tab);
@@ -804,8 +825,7 @@ void DashboardPage::setupRequestsTab(QWidget *tab)
     info->setObjectName("subtitleLabel");
 
     requestsTable = new QTableWidget();
-    // ── 6 columns: Request# | From | Item | Duration | Notes | Action ──
-    // (Trust Score column removed)
+    //  Request | From | Item | Duration | Notes | Action ──
     requestsTable->setColumnCount(6);
     requestsTable->setHorizontalHeaderLabels(
         {"Request#", "From", "Item", "Duration", "Notes", "Action"});
@@ -826,6 +846,7 @@ void DashboardPage::setupRequestsTab(QWidget *tab)
     layout->addWidget(requestsTable);
 }
 
+// graphical part of connections
 void DashboardPage::setupConnectionsTab(QWidget *tab)
 {
     QVBoxLayout *layout = new QVBoxLayout(tab);
@@ -855,6 +876,7 @@ void DashboardPage::setupConnectionsTab(QWidget *tab)
     layout->addWidget(connectionsTable);
 }
 
+// graphical part of profiles
 void DashboardPage::setupProfileTab(QWidget *tab)
 {
     QVBoxLayout *layout = new QVBoxLayout(tab);
@@ -880,7 +902,7 @@ void DashboardPage::refreshAll()
         return;
 
     welcomeLabel->setText(
-        QString("Welcome, %1!").arg(QString::fromStdString(user->getFullName())));
+        QString("Welcome, %1!").arg(QString::fromStdString(user->getFullName()))); // polymorphism works great here when i have diff kind of users....it crctly auto detects the type
 
     refreshBrowse();
     refreshMyItems();
@@ -898,10 +920,10 @@ void DashboardPage::onRefresh()
 
 void DashboardPage::onSearch()
 {
-    refreshBrowse();
+    refreshBrowse(); // just refreshes the browse tab with the current search query. the refreshBrowse method will read the searchEdit text and filter the items accordingly
 }
 
-// =================== STYLED DIALOG HELPERS ===================
+// again styling
 
 void DashboardPage::showStyledMsg(const QString &title, const QString &text)
 {
@@ -1121,7 +1143,8 @@ int DashboardPage::showStyledChoice(const QString &title, const QString &text,
 }
 
 // =================== REFRESH METHODS ===================
-
+// main dashboard
+// the searching item part main
 void DashboardPage::refreshBrowse()
 {
     browseTable->setRowCount(0);
@@ -1129,14 +1152,14 @@ void DashboardPage::refreshBrowse()
     if (!currentUser)
         return;
 
-    string query = searchEdit->text().trimmed().toStdString();
+    string query = searchEdit->text().trimmed().toStdString(); // get the search query from the searchEdit field and trim it. this query will be used to filter the items based on their name, category, or description
     vector<Item *> allItems = fileManager->getAllItems();
 
-    for (Item *item : allItems)
+    for (Item *item : allItems) // iterate through all items and check if they match the search query and are not owned by the current user. if they match, add them to the browseTable with their details and appropriate action buttons based on their availability
     {
-        if (!query.empty() && !item->matchesSearch(query))
+        if (!query.empty() && !item->matchesSearch(query)) // if there is a search query and the item does not match the query, skip it
             continue;
-        if (item->getOwnerID() == currentUser->getID())
+        if (item->getOwnerID() == currentUser->getID()) // if the item is owned by the current user, skip it
             continue;
 
         int row = browseTable->rowCount();
@@ -1152,19 +1175,20 @@ void DashboardPage::refreshBrowse()
             desc = desc.left(47) + "...";
         browseTable->setItem(row, 2, new QTableWidgetItem(desc));
 
-        User *owner = fileManager->findUserByStudentId(item->getOwnerID());
+        User *owner = fileManager->findUserByStudentId(item->getOwnerID()); // gets owner
         browseTable->setItem(row, 3,
                              new QTableWidgetItem(owner
                                                       ? QString::fromStdString(owner->getFullName())
-                                                      : "Unknown"));
+                                                      : "Unknown")); // if no owner found, show unknown
 
-        if (item->getAvailable())
+        if (item->getAvailable()) // if available, show request button. if not, show waitlist info and button if not already on waitlist
         {
             QTableWidgetItem *statusItem = new QTableWidgetItem("Available");
             statusItem->setForeground(QBrush(QColor("#27ae60")));
             browseTable->setItem(row, 4, statusItem);
             browseTable->setItem(row, 5, new QTableWidgetItem("-"));
 
+            // request setup
             QPushButton *requestBtn = new QPushButton("Request");
             string itemId = item->getID();
             connect(requestBtn, &QPushButton::clicked, [this, itemId]()
@@ -1172,23 +1196,26 @@ void DashboardPage::refreshBrowse()
                 User* cur = fileManager->getCurrentUser();
                 if (!cur) return;
 
-                bool ok;
+                //req button clicked, we first ask the user to enter the duration for which they want to borrow the item. this is done using a QInputDialog that prompts the user to enter a text input. the input is stored in the duration variable, and the ok variable indicates whether the user clicked OK or Cancel. if the user cancels the input or leaves it empty, we return without doing anything. if the user enters a valid duration, we then ask them for any additional notes they want to include with their request. this is another QInputDialog that works similarly to the first one. if the user cancels this input, we also return without doing anything. if both inputs are valid, we proceed to create a new Request object with the entered duration and notes, along with other necessary information like request ID, item ID, requester ID, status, and date. we then add this request to the file manager and show a success message. if there is an error during this process, we catch it and show an error message.
+                bool ok;//
                 QString duration = QInputDialog::getText(this, "Request Item",
                     "Duration (e.g., '1 week', '3 days'):",
-                    QLineEdit::Normal, "1 week", &ok);
+                    QLineEdit::Normal, "1 week", &ok);//user has to enter the duration for which they want to borrow the item. this input is taken using QInputDialog and stored in the duration variable. if the user cancels the input, ok will be false and we return without doing anything. if the user enters a duration, we proceed to create a new request with that duration and any additional notes they may want to add.
                 if (!ok || duration.isEmpty()) return;
 
                 QString notes = QInputDialog::getText(this, "Request Item",
                     "Additional notes (optional):", QLineEdit::Normal, "", &ok);
-                if (!ok) return;
+                if (!ok) return;//same check
 
-                int reqId = fileManager->getNextRequestId();
+                int reqId = fileManager->getNextRequestId();//get a new request id from the file manager-datastore
                 time_t now = time(0);
                 tm* ltm = localtime(&now);
                 char dateStr[20];
                 snprintf(dateStr, sizeof(dateStr), "%04d-%02d-%02d",
                          1900 + ltm->tm_year, 1 + ltm->tm_mon, ltm->tm_mday);
 
+
+                //makes a new req
                 Request newReq(to_string(reqId), cur->getID(), itemId,
                                duration.toStdString(), RequestStatus::PENDING,
                                string(dateStr), notes.toStdString());
@@ -1202,7 +1229,7 @@ void DashboardPage::refreshBrowse()
                 } });
             browseTable->setCellWidget(row, 6, requestBtn);
         }
-        else
+        else // not available
         {
             QTableWidgetItem *statusItem = new QTableWidgetItem("Borrowed");
             statusItem->setForeground(QBrush(QColor("#e74c3c")));
@@ -1212,6 +1239,7 @@ void DashboardPage::refreshBrowse()
             browseTable->setItem(row, 5,
                                  new QTableWidgetItem(QString("%1 waiting").arg(wCount)));
 
+            // checks if curr user is already on waitlist for this item.
             bool alreadyWaiting = fileManager->isOnWaitlist(
                 item->getID(), currentUser->getID());
 
@@ -1221,16 +1249,16 @@ void DashboardPage::refreshBrowse()
                 waitLabel->setStyleSheet("color: #f39c12; font-weight: bold;");
                 browseTable->setCellWidget(row, 6, waitLabel);
             }
-            else
+            else // not on waitlist
             {
                 QPushButton *waitBtn = new QPushButton("Join Waitlist");
                 waitBtn->setObjectName("warnBtn");
                 string itemId = item->getID();
                 connect(waitBtn, &QPushButton::clicked, [this, itemId]()
                         {
-                    User* cur = fileManager->getCurrentUser();
+                    User* cur = fileManager->getCurrentUser();//gets curr user
                     if (!cur) return;
-                    if (fileManager->addToWaitlist(itemId, cur->getID())) {
+                    if (fileManager->addToWaitlist(itemId, cur->getID())) {//added to waitlist
                         showStyledMsg("Waitlist",
                             "You've been added to the waitlist.\n"
                             "You'll get a request when the item becomes available.");
@@ -1644,21 +1672,23 @@ void DashboardPage::checkWaitlistNotifications()
 {
     User *user = fileManager->getCurrentUser();
     if (!user)
-        return;//if there is no user, return
+        return; // if there is no user, return
 
     vector<Request *> allReqs = fileManager->getAllRequests();
-    for (Request *req : allReqs)//goes thru all requests to find any pending requests that were auto-created from the waitlist for this user
+    for (Request *req : allReqs) // goes thru all requests to find any pending requests that were auto-created from the waitlist for this user
     {
         if (req->getBorrowerID() == user->getID() &&
             req->isPending() &&
-            req->getNotes().find("Auto-created from waitlist") != string::npos)//checks for any pending requests that were auto-created from the waitlist for this user
+            req->getNotes().find("Auto-created from waitlist") != string::npos) // checks for any pending requests that were auto-created from the waitlist for this user
         {
             Item *item = nullptr;
             try
             {
                 item = fileManager->findItemById(stoi(req->getItemID()));
             }
-            catch (...){}
+            catch (...)
+            {
+            }
             QString itemName = item
                                    ? QString::fromStdString(item->getName())
                                    : "an item";

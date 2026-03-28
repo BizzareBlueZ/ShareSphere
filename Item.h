@@ -19,15 +19,15 @@ enum class Category
 class Item
 {
 private:
-    string itemID; // Format: ITM001, ITM002
+    string itemID;
     string name;
     Category category;
     string description;
     bool isAvailable;
-    string ownerID;    // Format: STU001
-    string dateListed; // Format: 2024-03-15
+    string ownerID;
+    string dateListed;
 
-    // === FRIEND CLASS === (FileManager can access private members of Item)
+    // FRIEND CLASS (FileManager can access private members of Item)
     friend class FileManager;
 
 public:
@@ -47,8 +47,8 @@ public:
 
     // Setters
     void updateStatus(bool available);
-    void setName(const std::string& newName);
-    void setDescription(const std::string& newDesc);
+    void setName(const std::string &newName);
+    void setDescription(const std::string &newDesc);
 
     // Utility
     string getCategoryString() const;
@@ -65,7 +65,7 @@ public:
 
     static string getCurrentDate();
 
-    //friend functions
+    // friend functions
     friend ostream &operator<<(ostream &os, const Item &item);
 };
 

@@ -12,7 +12,7 @@
 
 using namespace std;
 
-//create file if it doesn't exist, used in constructor to ensure all files are present before loading/saving
+// create file if it doesn't exist, used in constructor to ensure all files are present before loading/saving
 FileManager::FileManager() : currentUser(nullptr)
 {
     usersFile = "users.txt";
@@ -46,7 +46,7 @@ FileManager::FileManager(string usrs, string itms, string reqs)
 
 FileManager::~FileManager()
 {
-    
+
     try
     {
         saveAllData();
@@ -63,7 +63,6 @@ FileManager::~FileManager()
     // DataStore destructors automatically clean up all pointers
 }
 
-
 void FileManager::createFileIfNotExists(const string &filename)
 {
     ifstream testFile(filename);
@@ -74,7 +73,7 @@ void FileManager::createFileIfNotExists(const string &filename)
     }
 }
 
-void FileManager::loadAllData()//reading from the data files, using ifstream and deserialization methods from User, Item, and Request classes
+void FileManager::loadAllData() // reading from the data files, using ifstream and deserialization methods from User, Item, and Request classes
 {
     // Clear existing data (DataStore::clear() handles memory deallocation)
     users.clear();
@@ -158,9 +157,9 @@ void FileManager::loadAllData()//reading from the data files, using ifstream and
     requestFile.close();
 }
 
-bool FileManager::saveAllData()//writing to the data files, using ofstream and serialization methods from User, Item, and Request classes
+bool FileManager::saveAllData() // writing to the data files, using ofstream and serialization methods from User, Item, and Request classes
 {
-    // STREAMS: Using ofstream for file output 
+    // STREAMS: Using ofstream for file output
     // Save users
     ofstream userFile(usersFile);
     if (!userFile.is_open())
@@ -438,7 +437,8 @@ bool FileManager::login(const string &studentId, const string &pin)
     User *user = findUserByStudentId(studentId);
     if (user && user->getPIN() == pin)
     {
-        currentUser = user;
+        currentUser = user; // on login...compiled with polymorphism, it will automatically detect the user type and assign it to the base class pointer currentUser,
+                            //   which is great for later when we want to display user details or do role-based access control, we can just call virtual functions and it will work correctly based on the actual user type (student, admin, etc.)
         return true;
     }
     return false;
@@ -454,14 +454,9 @@ User *FileManager::getCurrentUser() const
     return currentUser;
 }
 
-
-
-
-
-
-//auto incrementation is here
-// ==================== AUTO-INCREMENT IDs ====================
-// Using DataStore::getMaxId() template method
+// auto incrementation is here
+//  ==================== AUTO-INCREMENT IDs ====================
+//  Using DataStore::getMaxId() template method
 
 int FileManager::getNextUserId() const
 {
@@ -505,8 +500,6 @@ bool FileManager::saveAllDataToFiles()
 {
     return saveAllData();
 }
-
-
 
 // ==================== WAITLIST MANAGEMENT ====================
 

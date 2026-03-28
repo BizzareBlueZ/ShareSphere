@@ -8,7 +8,7 @@ class SystemManager
 {
 private:
     FileManager fileManager;
-    User *currentUser;
+    User *currentUser; // y using pointer? because we want to be able to set it to nullptr on logout, and also to avoid unnecessary copying of User objects
 
     // Window methods
     bool showLoginWindow();
